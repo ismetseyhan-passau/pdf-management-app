@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,12 +11,13 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
-import {Card} from "@mui/material";
+import {Card} from '@mui/material';
+import {useFormik} from 'formik';
+import {basicSchema} from '../schemas';
 
-
-function Copyright(props: any) {
+function Copyright() {
     return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
+        <Typography variant="body2" color="text.secondary" align="center">
             {'Copyright © '}
             <Link color="inherit" href="https://ismetseyhan.com/">
                 ismetseyhan.com
@@ -28,41 +28,60 @@ function Copyright(props: any) {
     );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+    const onSubmit = (values: MyFormValues) => {
+        console.log(values);
     };
+
+    interface MyFormValues {
+        email: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+        confirmPassword: string;
+    }
+
+    const initialValues: MyFormValues = {
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        confirmPassword: '',
+    };
+
+    const formik = useFormik({
+        initialValues,
+        validationSchema: basicSchema,
+        onSubmit,
+    });
 
     return (
         <ThemeProvider theme={defaultTheme}>
-            <Box sx={{
-                marginTop: 8,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-            }}>
-                <Card sx={{ // Add custom styles here
-                    borderColor: 'gray', // Set the border color to gray
-                    borderWidth: 0.2,
-                    borderStyle: 'solid',
-                    borderRadius: '12px', // Add rounded corners
-                    padding: '20px', // Add some padding for spacing
-                    boxShadow: '0px 2px 2px rgba(0.1, 0.1, 0.1, 0.1)',
-                }}>
-
+            <Box
+                sx={{
+                    marginTop: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <Card
+                    sx={{
+                        borderColor: 'gray',
+                        borderWidth: 0.2,
+                        borderStyle: 'solid',
+                        borderRadius: '12px',
+                        padding: '20px',
+                        boxShadow: '0px 2px 2px rgba(0.1, 0.1, 0.1, 0.1)',
+                    }}
+                >
                     <Container component="main" maxWidth="xs">
                         <CssBaseline/>
                         <Box
                             sx={{
-                                marginTop: 8,
+                                marginTop: 0,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
@@ -74,7 +93,12 @@ export default function SignUp() {
                             <Typography component="h1" variant="h5">
                                 Sign up
                             </Typography>
-                            <Box component="form" noValidate onSubmit={handleSubmit} sx={{mt: 3}}>
+                            <Box
+                                component="form"
+                                noValidate
+                                onSubmit={formik.handleSubmit}
+                                sx={{mt: 3}}
+                            >
                                 <Grid container spacing={2}>
                                     <Grid item xs={12} sm={6}>
                                         <TextField
@@ -85,6 +109,10 @@ export default function SignUp() {
                                             id="firstName"
                                             label="First Name"
                                             autoFocus
+                                            value={formik.values.firstName}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+                                            helperText={formik.touched.firstName && formik.errors.firstName}
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={6}>
@@ -95,6 +123,10 @@ export default function SignUp() {
                                             label="Last Name"
                                             name="lastName"
                                             autoComplete="family-name"
+                                            value={formik.values.lastName}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+                                            helperText={formik.touched.lastName && formik.errors.lastName}
                                         />
                                     </Grid>
                                     <Grid item xs={12}>
@@ -105,6 +137,10 @@ export default function SignUp() {
                                             label="Email Address"
                                             name="email"
                                             autoComplete="email"
+                                            value={formik.values.email}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.email && Boolean(formik.errors.email)}
+                                            helperText={formik.touched.email && formik.errors.email}
                                         />
                                     </Grid>
                                     <Grid item xs={12}>
@@ -116,6 +152,25 @@ export default function SignUp() {
                                             type="password"
                                             id="password"
                                             autoComplete="new-password"
+                                            value={formik.values.password}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.password && Boolean(formik.errors.password)}
+                                            helperText={formik.touched.password && formik.errors.password}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            required
+                                            fullWidth
+                                            name="confirmPassword"
+                                            label="Confirm Password"
+                                            type="password"
+                                            id="confirm-password"
+                                            autoComplete="confirm-password"
+                                            value={formik.values.confirmPassword}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+                                            helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
                                         />
                                     </Grid>
                                     <Grid item xs={12}>
