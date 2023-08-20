@@ -2,8 +2,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -12,8 +10,8 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {Card} from '@mui/material';
-import {useFormik} from 'formik';
-import {basicSchema} from '../schemas';
+import {useFormik} from "formik";
+import {signUpSchema} from "../schemas";
 
 function Copyright() {
     return (
@@ -31,29 +29,31 @@ function Copyright() {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-    const onSubmit = (values: MyFormValues) => {
+    const onSubmit = (values: SignUpFormValues) => {
         console.log(values);
     };
 
-    interface MyFormValues {
+    interface SignUpFormValues {
         email: string;
         password: string;
         firstName: string;
         lastName: string;
         confirmPassword: string;
+        acceptTerms: boolean;
     }
 
-    const initialValues: MyFormValues = {
+    const initialValues: SignUpFormValues = {
         email: '',
         password: '',
         firstName: '',
         lastName: '',
         confirmPassword: '',
+        acceptTerms: false
     };
 
     const formik = useFormik({
         initialValues,
-        validationSchema: basicSchema,
+        validationSchema: signUpSchema,
         onSubmit,
     });
 
@@ -174,11 +174,30 @@ export default function SignUp() {
                                         />
                                     </Grid>
                                     <Grid item xs={12}>
-                                        <FormControlLabel
-                                            control={<Checkbox value="allowExtraEmails" color="primary"/>}
-                                            label="I want to receive inspiration, marketing promotions and updates via email."
-                                        />
+                                        <div className="form-group form-check">
+                                            {/*
+                    Changed 'acceptTerms' from name and id attributes
+                    Added 'checked' attribute and 'onChange' handler
+                    */}
+                                            <input
+                                                type="checkbox"
+                                                name="acceptTerms"
+                                                id="acceptTerms"
+                                                className={'form-check-input ' + (formik.errors.acceptTerms && formik.touched.acceptTerms ? 'is-invalid' : '')}
+                                                checked={formik.values.acceptTerms}
+                                                onChange={formik.handleChange}
+                                            />
+                                            <label htmlFor="acceptTerms" className="form-check-label">Accept Terms &
+                                                Conditions</label>
+                                            {/* Display error message */}
+                                            {formik.errors.acceptTerms && formik.touched.acceptTerms && (
+                                                <div className="invalid-feedback" style={{color: 'red', fontSize: 12}}>
+                                                    {formik.errors.acceptTerms}
+                                                </div>
+                                            )}
+                                        </div>
                                     </Grid>
+
                                 </Grid>
                                 <Button
                                     type="submit"
@@ -188,7 +207,7 @@ export default function SignUp() {
                                 >
                                     Sign Up
                                 </Button>
-                                <Grid container justifyContent="flex-end">
+                                <Grid container justifyContent="flex-end" sx={{pb: 4}}>
                                     <Grid item>
                                         <Link href="/login" variant="body2">
                                             Already have an account? Sign in
