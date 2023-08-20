@@ -13,6 +13,10 @@ import {Card} from '@mui/material';
 import {useFormik} from "formik";
 import {signUpSchema} from "../schemas";
 import {useAuth} from "../contexts/AuthContext.tsx";
+import IUser from "../types/user.type.tsx";
+import UserService from "../services/user.service.tsx";
+import {useNavigate} from 'react-router-dom';
+
 
 function Copyright() {
     return (
@@ -32,10 +36,24 @@ const defaultTheme = createTheme();
 export default function SignUp() {
 
     const {signUp} = useAuth(); // A
-
+    const navigate = useNavigate();
 
     const onSubmit = (values: SignUpFormValues) => {
-        signUp(values.email, values.password).then((result) => {
+        signUp(values.email, values.password).then(async (result) => {
+            if (typeof result !== 'boolean') {
+                const newUser: IUser = {
+                    uid: result.user.uid,
+                    email: values.email,
+                    firstName: values.firstName,
+                    lastName: values.lastName
+                };
+                await UserService.getInstance().addUser(newUser);
+                console.log("succes");
+                navigate('/login', {replace: true});
+
+            } else {
+                console.log("fail");
+            }
             console.log(result);
         })
     };
@@ -223,7 +241,7 @@ export default function SignUp() {
                                 </Grid>
                             </Box>
                         </Box>
-                        <Copyright sx={{mt: 5}}/>
+                        <Copyright/>
                     </Container>
                 </Card>
             </Box>

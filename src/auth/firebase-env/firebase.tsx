@@ -1,6 +1,7 @@
 import {getAuth} from 'firebase/auth';
 
 import {initializeApp} from 'firebase/app';
+import {getFirestore} from "firebase/firestore";
 
 /*
 usage for .env.local file
@@ -27,3 +28,4 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const db = getFirestore(app);

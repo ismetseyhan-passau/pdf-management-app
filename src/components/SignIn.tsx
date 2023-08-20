@@ -27,7 +27,7 @@ export default function SignInSide() {
 
     const handleSubmit = async (values: any) => {
         await signIn(values.email, values.password);
-        console.log(values);
+
 
     };
 
