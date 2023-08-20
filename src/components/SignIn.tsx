@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -11,9 +10,9 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useFormik } from 'formik';
-import { signInSchema } from "../schemas"; // Import your schema here
+import {createTheme, ThemeProvider} from '@mui/material/styles';
+import {useFormik} from 'formik';
+import {signInSchema} from "../schemas"; // Import your schema here
 
 const defaultTheme = createTheme();
 
@@ -35,8 +34,8 @@ export default function SignInSide() {
 
     return (
         <ThemeProvider theme={defaultTheme}>
-            <Grid container component="main" sx={{ height: '100vh' }}>
-                <CssBaseline />
+            <Grid container component="main" sx={{height: '100vh'}}>
+                <CssBaseline/>
                 <Grid
                     item
                     xs={false}
