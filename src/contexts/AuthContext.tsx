@@ -1,45 +1,47 @@
-import React, {createContext, useContext, useEffect, useState} from 'react';
-import {auth} from '../auth/firebase-env/firebase.tsx'; // Firebase ayarlarınızı içeren dosya
-import {createUserWithEmailAndPassword, User, signInWithEmailAndPassword, UserCredential} from 'firebase/auth';
+import React, {createContext, useContext} from "react";
+import IUser from "../types/user.type.tsx";
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential} from "firebase/auth";
+import {useState} from "react";
+import {auth} from "../auth/firebase-env/firebase.tsx";
+import UserService from "../services/user.service.tsx";
 
 
-interface AuthContextType {
-    currentUser: User | null;
+type AuthContextType = {
+    currentUser: IUser | null;
     signUp: (email: string, password: string) => Promise<boolean | UserCredential>;
-    signIn: (email: string, password: string) => Promise<boolean | UserCredential>;
+    signIn: (email: string, password: string) => Promise<boolean | IUser>;
     signOut: () => Promise<void>;
 }
 
-const AuthContextProvider = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 
 export const useAuth = () => {
-    const context = useContext(AuthContextProvider);
+    const context = useContext(AuthContext);
     if (!context) {
         throw new Error('useAuth must be used within an AuthProvider');
     }
     return context;
-};
+}
 
 interface AuthProviderProps {
     children: React.ReactNode;
 }
 
+export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
 
-const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-    useEffect(() => {
-        return auth.onAuthStateChanged(user => {
-            setCurrentUser(user);
-        });
-    }, []);
-
+    const [currentUser, setCurrentUser] = useState<IUser | null>(null);
     const signIn = async (email: string, password: string) => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            setCurrentUser(userCredential.user);
-            return userCredential;
+            const currentUser = await UserService.getInstance().getUser(userCredential.user.uid)
+            if (currentUser != null) {
+                setCurrentUser(currentUser);
+                return currentUser;
+            }
+            return false;
         } catch (e) {
+            console.log(e);
             return false;
         }
     };
@@ -60,16 +62,16 @@ const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     };
 
     const contextValue: AuthContextType = {
-        currentUser,
-        signUp,
-        signIn,
-        signOut,
+        currentUser: currentUser,
+        signUp: signUp,
+        signIn: signIn,
+        signOut: signOut,
     };
 
     return (
-        <AuthContextProvider.Provider value={contextValue}>
+        <AuthContext.Provider value={contextValue}>
             {children}
-        </AuthContextProvider.Provider>
+        </AuthContext.Provider>
     );
 };
 

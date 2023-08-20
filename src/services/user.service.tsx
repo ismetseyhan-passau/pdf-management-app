@@ -1,4 +1,4 @@
-import {collection, getDocs, addDoc, deleteDoc, doc, getDoc} from 'firebase/firestore';
+import {collection, getDocs, deleteDoc, doc, getDoc, setDoc} from 'firebase/firestore';
 import {db} from '../auth/firebase-env/firebase';
 import IUser from '../types/user.type';
 
@@ -38,8 +38,7 @@ class UserService {
 
     async addUser(newUser: IUser): Promise<void> {
         try {
-            const usersRef = collection(this.db, 'users');
-            await addDoc(usersRef, newUser);
+            await setDoc(doc(db, "users", newUser.uid), newUser);
         } catch (error) {
             console.error('Error adding user:', error);
             throw error;
@@ -59,7 +58,7 @@ class UserService {
 
     async getUser(userId: string): Promise<IUser | null> {
         try {
-            const userDocRef = doc(this.db, 'users', userId);
+            const userDocRef = doc(this.db, `users/${userId}`);
             const userDocSnapshot = await getDoc(userDocRef);
 
             if (userDocSnapshot.exists()) {
@@ -74,6 +73,7 @@ class UserService {
             throw error;
         }
     }
+
 }
 
 export default UserService;

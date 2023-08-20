@@ -12,10 +12,10 @@ import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {Card} from '@mui/material';
 import {useFormik} from "formik";
 import {signUpSchema} from "../schemas";
-import {useAuth} from "../contexts/AuthContext.tsx";
 import IUser from "../types/user.type.tsx";
 import UserService from "../services/user.service.tsx";
 import {useNavigate} from 'react-router-dom';
+import {useAuth} from "../contexts/AuthContext.tsx";
 
 
 function Copyright() {
@@ -34,8 +34,7 @@ function Copyright() {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-
-    const {signUp} = useAuth(); // A
+    const {signUp} = useAuth();
     const navigate = useNavigate();
 
     const onSubmit = (values: SignUpFormValues) => {
