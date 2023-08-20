@@ -1,5 +1,5 @@
 import {Outlet, useLocation, Navigate} from "react-router-dom";
-import {auth} from "../firebase-env/firebase.tsx";
+import {auth} from "../auth/firebase-env/firebase.tsx";
 import {FC} from "react";
 
 const PrivateRoute: FC = () => {

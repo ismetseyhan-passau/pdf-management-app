@@ -1,11 +1,12 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
-import {auth} from '../firebase-env/firebase.tsx'; // Firebase ayarlarınızı içeren dosya
-import {createUserWithEmailAndPassword, User, signInWithEmailAndPassword} from 'firebase/auth';
+import {auth} from '../auth/firebase-env/firebase.tsx'; // Firebase ayarlarınızı içeren dosya
+import {createUserWithEmailAndPassword, User, signInWithEmailAndPassword, UserCredential} from 'firebase/auth';
+
 
 interface AuthContextType {
     currentUser: User | null;
-    signUp: (email: string, password: string) => Promise<void>;
-    signIn: (email: string, password: string) => Promise<void>;
+    signUp: (email: string, password: string) => Promise<boolean | UserCredential>;
+    signIn: (email: string, password: string) => Promise<boolean | UserCredential>;
     signOut: () => Promise<void>;
 }
 
@@ -33,13 +34,26 @@ const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
         });
     }, []);
 
-    const signUp = async (email: string, password: string) => {
-        await createUserWithEmailAndPassword(auth, email, password);
+    const signIn = async (email: string, password: string) => {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            setCurrentUser(userCredential.user);
+            return userCredential;
+        } catch (e) {
+            return false;
+        }
     };
 
-    const signIn = async (email: string, password: string) => {
-        await signInWithEmailAndPassword(auth, email, password);
+    const signUp = async (email: string, password: string) => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            console.log(userCredential.user);
+            return userCredential;
+        } catch (e) {
+            return false;
+        }
     };
+
 
     const signOut = async () => {
         await auth.signOut();

@@ -12,18 +12,23 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {useFormik} from 'formik';
-import {signInSchema} from "../schemas"; // Import your schema here
+import {signInSchema} from "../schemas";
+import { useAuth } from '../contexts/AuthContext';
 
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
+    const { signIn } = useAuth(); // A
+
     const initialValues = {
         email: '',
         password: '',
     };
 
-    const handleSubmit = (values: any) => {
+    const handleSubmit = async (values: any) => {
+        await signIn(values.email, values.password);
         console.log(values);
+
     };
 
     const formik = useFormik({
