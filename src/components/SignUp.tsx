@@ -12,6 +12,7 @@ import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {Card} from '@mui/material';
 import {useFormik} from "formik";
 import {signUpSchema} from "../schemas";
+import {useAuth} from "../contexts/AuthContext.tsx";
 
 function Copyright() {
     return (
@@ -29,8 +30,14 @@ function Copyright() {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
+
+    const {signUp} = useAuth(); // A
+
+
     const onSubmit = (values: SignUpFormValues) => {
-        console.log(values);
+        signUp(values.email, values.password).then((result) => {
+            console.log(result);
+        })
     };
 
     interface SignUpFormValues {
