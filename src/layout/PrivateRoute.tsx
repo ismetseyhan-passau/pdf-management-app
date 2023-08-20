@@ -1,11 +1,12 @@
-import {Outlet, useLocation, Navigate} from "react-router-dom";
-import {auth} from "../auth/firebase-env/firebase.tsx";
+import {Outlet, Navigate} from "react-router-dom";
 import {FC} from "react";
 
-const PrivateRoute: FC = () => {
-    const location = useLocation();
+import {useAuth} from '../contexts/AuthContext';
 
-    return auth.currentUser ? (
+const PrivateRoute: FC = () => {
+    const {currentUser} = useAuth();
+
+    return currentUser?.uid ? (
         <Outlet/>
     ) : (
         // Keep the previous navigation stack

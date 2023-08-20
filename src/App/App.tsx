@@ -10,6 +10,7 @@ import PrivateRoute from "../layout/PrivateRoute.tsx";
 
 const App = () => {
     return (
+
         <Routes>
             <Route path="/" element={<Home/>}/>
             <Route path="/login" element={<SignInSide/>}/>

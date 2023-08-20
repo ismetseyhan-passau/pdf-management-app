@@ -13,12 +13,14 @@ import Typography from '@mui/material/Typography';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {useFormik} from 'formik';
 import {signInSchema} from "../schemas";
-import { useAuth } from '../contexts/AuthContext';
+import {useNavigate} from 'react-router-dom';
+import {useAuth} from "../contexts/AuthContext.tsx";
 
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-    const { signIn } = useAuth(); // A
+    const {signIn} = useAuth();
+    const navigate = useNavigate();
 
     const initialValues = {
         email: '',
@@ -26,8 +28,13 @@ export default function SignInSide() {
     };
 
     const handleSubmit = async (values: any) => {
-        await signIn(values.email, values.password);
-        console.log(values);
+        await signIn(values.email, values.password).then((result) => {
+            if (result != false && result != null) {
+                navigate('/dashboard', {replace: true});
+            }
+
+        });
+
 
     };
 
