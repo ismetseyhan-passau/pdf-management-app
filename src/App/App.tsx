@@ -1,26 +1,16 @@
-import {Routes, Route} from 'react-router-dom';
-import Home from "../components/Home.tsx";
-import SignInSide from "../components/SignIn.tsx";
-import SignUp from "../components/SignUp.tsx";
 import '../App.css'
-import Error from '../components/Error.tsx';
-import Dashboard from "../components/Dashboard.tsx";
-import PrivateRoute from "../layout/PrivateRoute.tsx";
-
+import ThemeProvider from "../theme/ThemeProvider.tsx";
+import {useRoutes} from 'react-router-dom';
+import router from '../router.tsx';
 
 const App = () => {
+    const content = useRoutes(router);
     return (
 
-        <Routes>
-            <Route path="/" element={<Home/>}/>
-            <Route path="/login" element={<SignInSide/>}/>
-            <Route path="/register" element={<SignUp/>}/>
-            <Route element={<PrivateRoute/>}>
-                <Route path="/dashboard" element={<Dashboard/>}/>
-            </Route>
-            <Route path="*" element={<Error/>}/>
+        <ThemeProvider>
+            {content}
+        </ThemeProvider>
 
-        </Routes>
     );
 };
 

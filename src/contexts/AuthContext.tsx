@@ -2,7 +2,7 @@ import React, {createContext, useContext,} from "react";
 import IUser from "../types/user.type.tsx";
 import {
     createUserWithEmailAndPassword,
-    onAuthStateChanged,
+    //onAuthStateChanged,
     signInWithEmailAndPassword,
     UserCredential
 } from "firebase/auth";
@@ -40,18 +40,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     const [currentUser, setCurrentUser] = useState<IUser | null>(initialUser);
 
 
-    onAuthStateChanged(auth, async (user) => {
-        const storedUser = localStorage.getItem('currentUser');
-        if (user) {
-            if (!storedUser) {
-                const currentUser = await UserService.getInstance().getUser(user.uid);
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                setCurrentUser(currentUser);
-            }
-        } else if (storedUser) {
-            localStorage.removeItem('currentUser');
-        }
-    });
+    /* onAuthStateChanged(auth, async (user) => {
+         const storedUser = localStorage.getItem('currentUser');
+         if (user) {
+             if (!storedUser) {
+                 const currentUser = await UserService.getInstance().getUser(user.uid);
+                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                 setCurrentUser(currentUser);
+             }
+         } else if (storedUser) {
+             localStorage.removeItem('currentUser');
+         }
+     });*/
 
 
     const signIn = async (email: string, password: string) => {
