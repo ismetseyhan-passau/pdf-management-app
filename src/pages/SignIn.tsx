@@ -12,7 +12,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {useFormik} from 'formik';
-import {signInSchema} from "../schemas";
+import {signInSchema} from "../schemas/text.validation.tsx";
 import {useNavigate} from 'react-router-dom';
 import {useAuth} from "../contexts/AuthContext.tsx";
 import {useEffect} from "react";
