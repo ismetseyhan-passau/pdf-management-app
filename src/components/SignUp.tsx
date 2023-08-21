@@ -16,6 +16,7 @@ import IUser from "../types/user.type.tsx";
 import UserService from "../services/user.service.tsx";
 import {useNavigate} from 'react-router-dom';
 import {useAuth} from "../contexts/AuthContext.tsx";
+import {useEffect} from "react";
 
 
 function Copyright() {
@@ -34,8 +35,13 @@ function Copyright() {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-    const {signUp} = useAuth();
+    const {signUp, currentUser} = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        currentUser?.uid != null &&  navigate('/dashboard', {replace: true});
+    }, []);
+
 
     const onSubmit = (values: SignUpFormValues) => {
         signUp(values.email, values.password).then(async (result) => {
