@@ -12,6 +12,9 @@ import {
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {useAuth} from '../../contexts/AuthContext.tsx';
+import StorageService from "../../services/storage.service.tsx";
+import DocumentService from "../../services/document.service.tsx";
+import IDocument from '../../types/document.type.tsx';
 
 function PageHeader() {
     const {currentUser} = useAuth();
@@ -21,10 +24,10 @@ function PageHeader() {
     };
 
     const [isDialogOpen, setDialogOpen] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState('');
     const [errors, setErrors] = useState({fileName: '', file: ''});
-
+    const [uploadProgress, setUploadProgress] = useState(0);
     const handleDialogOpen = () => {
         setDialogOpen(true);
     };
@@ -37,7 +40,7 @@ function PageHeader() {
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         setSelectedFile(file);
-
+        setUploadProgress(0);
         setErrors((prevErrors) => ({
             ...prevErrors,
             file: '',
@@ -53,24 +56,55 @@ function PageHeader() {
         }));
     };
 
-    const handleAddDocument = () => {
+    const handleAddDocument = async () => {
         if (!fileName) {
             setErrors((prevErrors) => ({
                 ...prevErrors,
                 fileName: 'File name is required',
             }));
+            return;
         }
         if (!selectedFile) {
             setErrors((prevErrors) => ({
                 ...prevErrors,
                 file: ' Please select a file',
             }));
+            return;
         }
 
-        // If both file name and file are valid, proceed to add the document
-        if (fileName && selectedFile) {
+        try {
+            const storageService = StorageService.getInstance();
+            const dowloandURL = await storageService.uploadFile("userId", selectedFile, setUploadProgress);
 
-            handleDialogClose();
+            if (dowloandURL != null) {
+                const fileType = selectedFile.type.includes("pdf")
+                    ? "pdf"
+                    : selectedFile.type.includes("jpg")
+                        ? "jpg"
+                        : selectedFile.type.includes("png")
+                            ? "png"
+                            : "png";
+
+                const newDocument: IDocument = {
+                    id: fileName,
+                    title: fileName,
+                    path: dowloandURL,
+                    createdAt: new Date().toISOString(),
+                    type: fileType,
+                };
+
+                if (currentUser?.uid != null) {
+                    const documentServiceInstance = DocumentService.getInstance();
+                    const documentId = await documentServiceInstance.addDocument(currentUser.uid, newDocument);
+                    if (documentId != null) {
+                        newDocument.id = documentId;
+                        await documentServiceInstance.updateDocument(currentUser.uid, documentId, newDocument);
+                        handleDialogClose();
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
         }
     };
 
@@ -129,7 +163,7 @@ function PageHeader() {
                                 Choose a File
                             </Button>
                             <span>
-                                {selectedFile != null ? "  1 File Selected" : ""}
+                                 {selectedFile ? ` 1 File Selected - ${uploadProgress}% Uploaded` : ""}
                             </span>
 
                         </label>
@@ -147,7 +181,9 @@ function PageHeader() {
                     </DialogActions>
                 </Dialog>
             </Grid>
+
         </Grid>
+
     );
 }
 
