@@ -1,12 +1,12 @@
 import {Navigate} from 'react-router-dom';
 import {RouteObject} from 'react-router';
 import SidebarLayout from './layout/SidebarLayout'
-import Home from "./components/Home.tsx";
-import Dashboard from "./components/Dashboard.tsx";
+import Home from "./pages/Home.tsx";
 import PrivateRoute from "./layout/PrivateRoute.tsx";
-import SignInSide from "./components/SignIn.tsx";
-import SignUp from "./components/SignUp.tsx";
-import Error from "./components/Error.tsx";
+import SignInSide from "./pages/SignIn.tsx";
+import SignUp from "./pages/SignUp.tsx";
+import Error from "./pages/Error.tsx";
+import DocumentManagement from "./features/document_management/DocumentManagement.tsx";
 
 
 // Pages
@@ -26,7 +26,7 @@ const routes: RouteObject[] = [
                 },
                 {
                     path: 'dashboard',
-                    element: <Dashboard/>
+                    element: <DocumentManagement/>
                 },
                 {
                     path: 'home',

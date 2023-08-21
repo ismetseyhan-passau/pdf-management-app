@@ -11,7 +11,7 @@ import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {Card} from '@mui/material';
 import {useFormik} from "formik";
-import {signUpSchema} from "../schemas";
+import {signUpSchema} from "../schemas/text.validation.tsx";
 import IUser from "../types/user.type.tsx";
 import UserService from "../services/user.service.tsx";
 import {useNavigate} from 'react-router-dom';
