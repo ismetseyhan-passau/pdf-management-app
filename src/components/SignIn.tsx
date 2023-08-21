@@ -15,12 +15,18 @@ import {useFormik} from 'formik';
 import {signInSchema} from "../schemas";
 import {useNavigate} from 'react-router-dom';
 import {useAuth} from "../contexts/AuthContext.tsx";
+import {useEffect} from "react";
 
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-    const {signIn} = useAuth();
+    const {signIn, currentUser} = useAuth();
     const navigate = useNavigate();
+
+
+    useEffect(() => {
+        currentUser?.uid != null && navigate('/dashboard', {replace: true});
+    }, []);
 
     const initialValues = {
         email: '',

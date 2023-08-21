@@ -17,13 +17,13 @@ const firebaseConfig = {
 }*/
 
 const firebaseConfig = {
-    apiKey: 'AIzaSyCwFl9NEkRw_W37z5P2SgUxAX7QwNZJR_o',
-    authDomain: 'bmw-pdf-management.firebaseapp.com',
-    databaseURL: 'your_database_url',
-    projectId: 'bmw-pdf-management',
-    storageBucket: 'bmw-pdf-management.appspot.com',
-    messagingSenderId: '884960588233',
-    appId: '1:884960588233:web:5518ac3562aba78fa8f818',
+    apiKey: "AIzaSyDHZ6tp9PJaBvSk_YmjfmeUX4KBjRrMfP0",
+    authDomain: "bmw-pdf-management-5c264.firebaseapp.com",
+    projectId: "bmw-pdf-management-5c264",
+    storageBucket: "bmw-pdf-management-5c264.appspot.com",
+    messagingSenderId: "112557768282",
+    appId: "1:112557768282:web:c4129ea0f44d15473ba263",
+    measurementId: "G-0HF2M27EFE"
 };
 
 const app = initializeApp(firebaseConfig);
