@@ -1,4 +1,4 @@
-import {collection, doc, getDocs, addDoc, updateDoc} from 'firebase/firestore';
+import {collection, doc, getDocs, addDoc, updateDoc,deleteDoc} from 'firebase/firestore';
 import {db} from '../auth/firebase-env/firebase';
 import IDocument from '../types/document.type';
 
@@ -54,6 +54,16 @@ class DocumentService {
             await updateDoc(userDocumentRef, updatedDocument);
         } catch (error) {
             console.error("Error updating document:", error);
+            throw error;
+        }
+    }
+
+    async deleteDocument(userId: string, documentId: string): Promise<void> {
+        try {
+            const userDocumentRef = doc(this.db, `documents/${userId}/document/${documentId}`);
+            await deleteDoc(userDocumentRef);
+        } catch (error) {
+            console.error("Error deleting document:", error);
             throw error;
         }
     }

@@ -1,5 +1,5 @@
 export type DocumentTypeStatus = 'pdf' | 'png' | 'jpg';
-export type CryptoOrderStatus = 'completed' | 'pending' | 'failed';
+
 interface IDocument {
     id: string;
     title: string;

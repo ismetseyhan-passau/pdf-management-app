@@ -2,7 +2,7 @@ import PageHeader from './PageHeader';
 import PageTitleWrapper from '../../components/PageTitleWrapper';
 import {Grid, Container} from '@mui/material';
 
-import RecentOrders from './RecentOrders';
+import RecentDocuments from './RecentDocuments.tsx';
 import Footer from "../../components/Footer";
 
 function DocumentManagement() {
@@ -21,7 +21,7 @@ function DocumentManagement() {
                     spacing={3}
                 >
                     <Grid item xs={12}>
-                        <RecentOrders/>
+                        <RecentDocuments/>
                     </Grid>
                 </Grid>
             </Container>

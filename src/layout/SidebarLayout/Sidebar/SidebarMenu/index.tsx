@@ -181,10 +181,10 @@ function SidebarMenu() {
                                     disableRipple
                                     component={RouterLink}
                                     onClick={closeSidebar}
-                                    to="/dashboard"
+                                    to="/documents"
                                     startIcon={<TableChartTwoToneIcon/>}
                                 >
-                                    File Management
+                                    Documents
                                 </Button>
                             </ListItem>
                         </List>

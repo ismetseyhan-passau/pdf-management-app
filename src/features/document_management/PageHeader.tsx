@@ -37,6 +37,8 @@ function PageHeader() {
         resetForm();
     };
 
+
+    // @ts-ignore
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         setSelectedFile(file);
@@ -47,6 +49,7 @@ function PageHeader() {
         }));
     };
 
+    // @ts-ignore
     const handleFileNameChange = (event) => {
         const value = event.target.value;
         setFileName(value);

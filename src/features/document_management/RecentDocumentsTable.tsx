@@ -1,6 +1,15 @@
-import {FC, ChangeEvent, useState} from 'react';
-import {format} from 'date-fns';
+import {FC, ChangeEvent, useState,} from 'react';
 import PropTypes from 'prop-types';
+import Label from '../../components/Label';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
+import BulkActions from './BulkActions';
+import IDocument, {DocumentTypeStatus} from "../../types/document.type.tsx";
+import DocumentService from "../../services/document.service.tsx";
+import {useAuth} from "../../contexts/AuthContext.tsx";
+
+
 import {
     Tooltip,
     Divider,
@@ -23,12 +32,9 @@ import {
     useTheme,
     CardHeader
 } from '@mui/material';
+import AlertDialog from "../../components/AlertDialog/AlertDialog.tsx";
+import ImageViewer from "../../components/ImageViewer/ImageViewer.tsx";
 
-import Label from '../../components/Label';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import BulkActions from './BulkActions';
-import IDocument, {DocumentTypeStatus} from "../../types/document.type.tsx";
 
 interface RecentDocumentsTableProps {
     className?: string;
@@ -84,16 +90,20 @@ const applyPagination = (
 };
 
 const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
+
+    const {currentUser} = useAuth();
     const [selectedDocuments, setSelectedDocuments] = useState<string[]>(
         []
     );
     const selectedBulkActions = selectedDocuments.length > 0;
     const [page, setPage] = useState<number>(0);
     const [limit, setLimit] = useState<number>(5);
+    // @ts-ignore
     const [filters, setFilters] = useState<Filters>({
+        // @ts-ignore
         types: null
     });
-
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
     const statusOptions = [
         {
             id: 'all',
@@ -114,19 +124,20 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
     ];
 
     const handleStatusChange = (e: ChangeEvent<HTMLInputElement>): void => {
+        // @ts-ignore
         let value = null;
-
         if (e.target.value !== 'all') {
             value = e.target.value;
         }
 
         setFilters((prevFilters) => ({
             ...prevFilters,
+            // @ts-ignore
             types: value
         }));
     };
 
-    const handleSelectAllCryptoOrders = (
+    const handleSelectAllDocuments = (
         event: ChangeEvent<HTMLInputElement>
     ): void => {
         setSelectedDocuments(
@@ -137,6 +148,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
     };
 
     const handleSelectOneDocument = (
+        // @ts-ignore
         event: ChangeEvent<HTMLInputElement>,
         documentId: string
     ): void => {
@@ -152,6 +164,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
         }
     };
 
+    // @ts-ignore
     const handlePageChange = (event: any, newPage: number): void => {
         setPage(newPage);
     };
@@ -160,9 +173,9 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
         setLimit(parseInt(event.target.value));
     };
 
-    const filteredCryptoOrders = applyFilters(documents, filters);
+    const filteredDocuments = applyFilters(documents, filters);
     const paginatedDocuments = applyPagination(
-        filteredCryptoOrders,
+        filteredDocuments,
         page,
         limit
     );
@@ -173,6 +186,16 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
         selectedDocuments.length === documents.length;
     const theme = useTheme();
 
+
+    const [viewerOpen, setViewerOpen] = useState(false);
+    const [viewerImageUrl, setViewerImageUrl] = useState('');
+
+    const handleOpenImageViewer = (imageUrl: string) => {
+        setViewerImageUrl(imageUrl);
+        setViewerOpen(true);
+    };
+
+    const [selectedOperationId, setSelectedOperationId] = useState<string | null>(null);
     return (
         <Card>
             {selectedBulkActions && (
@@ -188,6 +211,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
                                 <InputLabel>Status</InputLabel>
                                 <Select
                                     value={filters.types || 'all'}
+                                    // @ts-ignore
                                     onChange={handleStatusChange}
                                     label="Status"
                                     autoWidth
@@ -214,17 +238,18 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
                                     color="primary"
                                     checked={selectedAllDocuments}
                                     indeterminate={selectedSomeDocuments}
-                                    onChange={handleSelectAllCryptoOrders}
+                                    onChange={handleSelectAllDocuments}
                                 />
                             </TableCell>
-                            <TableCell>Document title</TableCell>
                             <TableCell>Document Id</TableCell>
+                            <TableCell>Document title</TableCell>
+                            <TableCell align="right">Document Created</TableCell>
                             <TableCell align="right">Document Type</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedDocuments.map((document, index) => {
+                        {paginatedDocuments.map((document) => {
                             const isDocumentSelected = selectedDocuments.includes(
                                 document.id
                             );
@@ -252,10 +277,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
                                             gutterBottom
                                             noWrap
                                         >
-                                            {document.title}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary" noWrap>
-                                            {document.createdAt}
+                                            {document.id}
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
@@ -266,13 +288,50 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
                                             gutterBottom
                                             noWrap
                                         >
-                                            {document.id}
+                                            {document.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary" noWrap>
+                                            {document.createdAt}
                                         </Typography>
                                     </TableCell>
+                                    <TableCell align="right">
+                                        <Typography
+                                            variant="body1"
+                                            fontWeight="bold"
+                                            color="text.primary"
+                                            gutterBottom
+                                            noWrap
+                                        >
+                                            {document.createdAt}
+                                        </Typography>
+                                    </TableCell>
+
+
                                     <TableCell align="right">
                                         {getStatusLabel(document.type)}
                                     </TableCell>
                                     <TableCell align="right">
+                                        <Tooltip title="Show Document" arrow>
+                                            <IconButton
+                                                sx={{
+                                                    '&:hover': {
+
+                                                        background: theme.colors.secondary.lighter
+                                                    },
+                                                    color: "#080808"
+                                                }}
+                                                color="inherit"
+                                                size="small"
+                                                onClick={() => {
+                                                    if (document.type != "pdf") {
+                                                        handleOpenImageViewer(document.path);
+                                                    }
+
+                                                }}
+                                            >
+                                                <SearchTwoToneIcon fontSize="small"/>
+                                            </IconButton>
+                                        </Tooltip>
                                         <Tooltip title="Edit Document" arrow>
                                             <IconButton
                                                 sx={{
@@ -295,11 +354,16 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
                                                 }}
                                                 color="inherit"
                                                 size="small"
+                                                onClick={() => {
+                                                    setSelectedOperationId(document.id)
+                                                    setShowDeleteConfirmation(true);
+                                                }}
                                             >
                                                 <DeleteTwoToneIcon fontSize="small"/>
                                             </IconButton>
                                         </Tooltip>
                                     </TableCell>
+
                                 </TableRow>
                             );
                         })}
@@ -309,7 +373,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
             <Box p={2}>
                 <TablePagination
                     component="div"
-                    count={filteredCryptoOrders.length}
+                    count={filteredDocuments.length}
                     onPageChange={handlePageChange}
                     onRowsPerPageChange={handleLimitChange}
                     page={page}
@@ -317,6 +381,33 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
                     rowsPerPageOptions={[5, 10, 25, 30]}
                 />
             </Box>
+
+            <Box display="flex" justifyContent="center" p={2}>
+                <AlertDialog
+                    title="Confirm Deletion"
+                    content="Are you sure you want to delete the selected documents?"
+                    agreeButtonText="Yes, Delete"
+                    disagreeButtonText="Cancel"
+                    onAgree={async () => {
+
+                        if (currentUser?.uid) {
+                            await DocumentService.getInstance().deleteDocument(currentUser?.uid, selectedOperationId!);
+                            setShowDeleteConfirmation(false);
+                            setSelectedOperationId(null);
+                        }
+                    }}
+                    onDisagree={() => {
+                        setShowDeleteConfirmation(false);
+                        setSelectedOperationId(null);
+                    }}
+                    open={showDeleteConfirmation}
+                    onClose={() => setShowDeleteConfirmation(false)}
+                />
+            </Box>
+            {viewerOpen && (
+                <ImageViewer imageUrl={viewerImageUrl} onClose={() => setViewerOpen(false)}/>
+            )}
+
         </Card>
     );
 };
