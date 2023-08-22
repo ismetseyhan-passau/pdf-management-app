@@ -22,10 +22,10 @@ const routes: RouteObject[] = [
             children: [
                 {
                     path: '',
-                    element: <Navigate to="dashboard" replace/>
+                    element: <Navigate to="documents" replace/>
                 },
                 {
-                    path: 'dashboard',
+                    path: 'documents',
                     element: <DocumentManagement/>
                 },
                 {
