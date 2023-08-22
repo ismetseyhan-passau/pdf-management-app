@@ -1,4 +1,4 @@
-import {collection, doc, getDocs, addDoc, updateDoc,deleteDoc} from 'firebase/firestore';
+import {collection, doc, getDocs, addDoc, updateDoc, deleteDoc, getDoc} from 'firebase/firestore';
 import {db} from '../auth/firebase-env/firebase';
 import IDocument from '../types/document.type';
 
@@ -36,6 +36,24 @@ class DocumentService {
             return [];
         }
     }
+
+    async getDocumentById(userId: string, documentId: string): Promise<IDocument | null> {
+        try {
+            const userDocumentRef = doc(this.db, `documents/${userId}/document/${documentId}`);
+            const documentSnapshot = await getDoc(userDocumentRef);
+
+            if (documentSnapshot.exists()) {
+                const documentData = documentSnapshot.data() as IDocument;
+                return documentData;
+            } else {
+                return null; // Belge bulunamadı
+            }
+        } catch (error) {
+            console.error("Error fetching document by ID:", error);
+            throw error;
+        }
+    }
+
 
     async addDocument(userId: string, newDocument: IDocument): Promise<void | string> {
         try {

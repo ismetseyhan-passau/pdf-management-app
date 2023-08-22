@@ -7,6 +7,7 @@ import SignInSide from "./pages/SignIn.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Error from "./pages/Error.tsx";
 import DocumentManagement from "./features/document_management/DocumentManagement.tsx";
+import CustomPdfViewer from "./features/pdf-viewer/CustomPdfViewer.tsx";
 
 
 // Pages
@@ -31,6 +32,14 @@ const routes: RouteObject[] = [
                 {
                     path: 'home',
                     element: <Home/>
+                },
+                {
+                    path: 'pdf-viewer',
+                    element: <CustomPdfViewer/>
+                },
+                {
+                    path: 'pdf-viewer/:documentId',
+                    element: <CustomPdfViewer/>
                 }
             ]
         },]

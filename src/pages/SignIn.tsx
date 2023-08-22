@@ -36,7 +36,7 @@ export default function SignInSide() {
     const handleSubmit = async (values: any) => {
         await signIn(values.email, values.password).then((result) => {
             if (result != false && result != null) {
-                navigate('/dashboard', {replace: true});
+                navigate('/', {replace: true});
             }
 
         });
