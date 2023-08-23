@@ -34,6 +34,7 @@ import {
 } from '@mui/material';
 import AlertDialog from "../../components/AlertDialog/AlertDialog.tsx";
 import ImageViewer from "../../components/ImageViewer/ImageViewer.tsx";
+import {useNavigate} from "react-router-dom";
 
 
 interface RecentDocumentsTableProps {
@@ -90,7 +91,7 @@ const applyPagination = (
 };
 
 const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
-
+    const navigate = useNavigate();
     const {currentUser} = useAuth();
     const [selectedDocuments, setSelectedDocuments] = useState<string[]>(
         []
@@ -325,6 +326,9 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
                                                 onClick={() => {
                                                     if (document.type != "pdf") {
                                                         handleOpenImageViewer(document.path);
+                                                    } else {
+                                                        const pdfPath = "/pdf-viewer/" + document.id
+                                                        navigate(pdfPath, {replace: false});
                                                     }
 
                                                 }}

@@ -1,11 +1,15 @@
 #root {
-  width: 100%;
-}
-
-.body{
     width: 100%;
 }
 
-.MuiPageTitle-wrapper{
-    background :#F2F5F9!important;
+.body {
+    width: 100%;
+}
+
+.MuiPageTitle-wrapper {
+    background: #F2F5F9 !important;
+}
+
+.react-pdf__Page__textContent {
+    border: 2px solid black;
 }
