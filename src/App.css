@@ -13,3 +13,16 @@
 .react-pdf__Page__textContent {
     border: 2px solid black;
 }
+
+
+.css-5j4tj9-MuiPaper-root-MuiDrawer-paper {
+    background: #F2F5F9 !important;
+    position: absolute!important;
+    max-width: 30%;
+}
+
+.note-card {
+    margin-bottom: 16px;
+    width: 100%;
+
+}

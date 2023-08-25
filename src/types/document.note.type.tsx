@@ -1,3 +1,7 @@
+
+import 'firebase/firestore'
+
+
 interface IDocumentNoteType {
     id: string;
     noteTitle: string;
@@ -10,6 +14,7 @@ interface IDocumentNoteType {
     yPdf: number;
     xCanvas: number;
     yCanvas: number;
+    createdAt: string; //todo timestamp
 }
 
 export default IDocumentNoteType;

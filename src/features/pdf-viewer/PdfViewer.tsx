@@ -1,8 +1,5 @@
 import {useState, useEffect, useCallback} from 'react';
 import {Document, Page, Outline} from 'react-pdf';
-import {useParams} from 'react-router-dom';
-import DocumentService from '../../services/document.service.tsx';
-import {useAuth} from '../../contexts/AuthContext.tsx';
 import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Button from '@mui/material/Button';
@@ -10,8 +7,12 @@ import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import RemoveTwoToneIcon from '@mui/icons-material/RemoveTwoTone';
 import Box from "@mui/material/Box";
 
-import TextSelectionPopupButton from "./TextSelectionPopupButton.tsx";
+
+import PdfWrapperCanvas from "./PdfWrapperCanvas.tsx";
 import NoteDialog from "./AddNoteDiolog.tsx";
+import NoteService from "../../services/note.service.tsx";
+import IDocumentNoteType from "../../types/document.note.type.tsx";
+import NotesDrawer from "./NotesDrawer.tsx";
 
 
 function highlightPattern(text: string, pattern: string) {
@@ -19,27 +20,35 @@ function highlightPattern(text: string, pattern: string) {
 }
 
 
-function CustomPdfViewer() {
-    const {currentUser} = useAuth();
-    const {documentId} = useParams<{ documentId: string }>();
-    const [documentPath, setDocumentPath] = useState<string>('');
+interface PdfViewerProps {
+    currentUser: any;
+    documentId: string;
+    documentPath: string;
+    documentTitle: string;
+    notesOfDocument: IDocumentNoteType[];
+}
+
+
+function PdfViewer(props: PdfViewerProps) {
+
+
+    const {currentUser, documentId, documentPath, documentTitle, notesOfDocument} = props;
+
     const [numPages, setNumPages] = useState<number>(0);
-    const [pageNumber, setPageNumber] = useState<number>(1);
-    const [visibility, setVisibility] = useState<boolean>(true);
+    const [currentPageNumber, setCurrentPageNumber] = useState<number>(1);
+    const [pdfPrintBlocker, setPdfPrintBlocker] = useState<boolean>(true);
     const [searchText, setSearchText] = useState('');
     const [selectedText, setSelectedText] = useState<string | undefined>(undefined);
-
-
-    const [signatureMap, setSignatureMap] = useState({});
+    const [markerMap, setMarkerMap] = useState({});
     const canvasWidth = 595;
     const canvasHeight = 842;
-
-
     const signatureWidth = 50;
     const signatureHeight = 50;
 
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [location, setLocation] = useState({
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const [markerLocation, setMarkerLocation] = useState({
         xPDF: 0,
         yPDF: 0,
         xCanvas: 0,
@@ -47,14 +56,72 @@ function CustomPdfViewer() {
     })
 
 
+    useEffect(() => {
+        window.addEventListener('beforeprint', preventPrint);
+        window.addEventListener('afterprint', handleAfterPrint);
+
+        return () => {
+            window.removeEventListener('beforeprint', preventPrint);
+            window.removeEventListener('afterprint', handleAfterPrint);
+        };
+    }, []);
+
+
+    useEffect(() => {
+        function handleSelectionChange() {
+            if (!isDialogOpen) {
+                const selectedText = window.getSelection()?.toString();
+                if (selectedText) {
+                    setSelectedText(selectedText);
+                    console.log(selectedText);
+                }
+            }
+        }
+
+        window.addEventListener('mouseup', handleSelectionChange);
+        window.addEventListener('selectionchange', handleSelectionChange);
+
+        return () => {
+            window.removeEventListener('mouseup', handleSelectionChange);
+            window.removeEventListener('selectionchange', handleSelectionChange);
+        };
+    }, [isDialogOpen]);
+
+
+    function onDocumentLoadSuccess({numPages}: { numPages: number }): void {
+        setNumPages(numPages);
+    }
+
+    function onItemClick({pageNumber: itemPageNumber}) {
+        setCurrentPageNumber(itemPageNumber);
+    }
+
+
+    const handlePageChange = (offset: number) => {
+        const newPageNumber = currentPageNumber + offset;
+        if (newPageNumber >= 1 && newPageNumber <= numPages) {
+            setCurrentPageNumber(newPageNumber);
+        }
+    };
+
+
     const handleAddNote = (xPDF: number, yPDF: number, xCanvas: number, yCanvas: number) => {
         console.log("handled," + xPDF + "," + yPDF + "," + xCanvas + "," + yCanvas + "," + selectedText);
-        setLocation({xPDF, yPDF, xCanvas, yCanvas});
-        setDialogOpen(true);
+        setMarkerLocation({xPDF, yPDF, xCanvas, yCanvas});
+        setIsDialogOpen(true);
         return true;
     };
-    const handleSaveNote = (noteData) => {
-        console.log('Saved note:', noteData);
+
+
+    const handleSaveNote = async (noteData: IDocumentNoteType) => {
+        if (currentUser?.uid != null && documentId != null) {
+            await NoteService.getInstance().addNote(currentUser?.uid, documentId!, noteData).then(() => {
+                setIsDialogOpen(false);
+                toast.success('Note added successfully!', {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                });
+            })
+        }
     };
 
 
@@ -68,108 +135,57 @@ function CustomPdfViewer() {
     }
 
 
-    async function fetchDocument(documentId: string) {
-        try {
-            if (currentUser?.uid != null) {
-                const documentSnapshot = await DocumentService.getInstance().getDocumentById(currentUser?.uid, documentId);
-                documentSnapshot?.path != null && setDocumentPath(documentSnapshot.path);
-            }
-        } catch (error) {
-            console.error('Error fetching document:', error);
-        }
-    }
-
     const preventPrint = (event) => {
         event.preventDefault();
         console.log('Printing operations have been blocked for security reasons.');
-        setVisibility(false);
+        setPdfPrintBlocker(false);
 
 
     };
 
     const handleAfterPrint = () => {
         console.log('Closed print dialog');
-        setVisibility(true);
+        setPdfPrintBlocker(true);
         toast.warning('Printing operations have been blocked for security reasons.', {
             position: toast.POSITION.BOTTOM_RIGHT,
         });
     };
 
-    const handlePageChange = (offset: number) => {
-        const newPageNumber = pageNumber + offset;
-        if (newPageNumber >= 1 && newPageNumber <= numPages) {
-            setPageNumber(newPageNumber);
-        }
-    };
 
     // Inside CustomPdfViewer component
 
 
-    useEffect(() => {
-        if (documentId !== undefined) {
-            fetchDocument(documentId);
-        }
-
-        window.addEventListener('beforeprint', preventPrint);
-        window.addEventListener('afterprint', handleAfterPrint);
-
-        return () => {
-            window.removeEventListener('beforeprint', preventPrint);
-            window.removeEventListener('afterprint', handleAfterPrint);
-        };
-    }, [documentId, currentUser]);
-
-
-    useEffect(() => {
-        function handleSelectionChange() {
-            if (!dialogOpen) {
-                const selectedText2 = window.getSelection()?.toString();
-                if (selectedText2) {
-                    setSelectedText(selectedText2);
-                    console.log(selectedText2);
-                }
-            }
-        }
-
-        window.addEventListener('mouseup', handleSelectionChange);
-        window.addEventListener('selectionchange', handleSelectionChange);
-
-        return () => {
-            window.removeEventListener('mouseup', handleSelectionChange);
-            window.removeEventListener('selectionchange', handleSelectionChange);
-        };
-    }, [dialogOpen]);
-
-    function onDocumentLoadSuccess({numPages}: { numPages: number }): void {
-        setNumPages(numPages);
-    }
-
-    function onItemClick({pageNumber: itemPageNumber}) {
-        setPageNumber(itemPageNumber);
-    }
-
     return (
         <div style={{position: "relative"}}>
-            <div style={{width: "100%"}}>
-                <TextSelectionPopupButton
+            <NotesDrawer
+                documentId={documentId}
+                documentTitle={documentTitle}
+                currentPage={currentPageNumber}
+                numPages={numPages}
+                noteList={notesOfDocument}
+
+            />
+            <div style={{width: "100%", height: "100vh"}}>
+
+                <PdfWrapperCanvas
                     signatureWidth={signatureWidth}
                     signatureHeight={signatureHeight}
                     canvasWidth={canvasWidth}
                     canvasHeight={canvasHeight}
                     enableSelect={selectedText !== undefined && selectedText.length > 0}
                     enableDraw={true}
-                    signatureMap={signatureMap}
-                    updateSignatureMap={setSignatureMap}
-                    currentPage={pageNumber}
+                    signatureMap={markerMap}
+                    updateSignatureMap={setMarkerMap}
+                    currentPage={currentPageNumber}
                     textPlaceholder="Your sign will be here!"
                     addNoteFunction={handleAddNote}
 
                 >
-                    {visibility && (
+                    {pdfPrintBlocker && (
                         <div>
                             <Document file={documentPath} onLoadSuccess={onDocumentLoadSuccess}>
                                 <Outline onItemClick={onItemClick}/>
-                                <Page pageNumber={pageNumber}
+                                <Page pageNumber={currentPageNumber}
                                       customTextRenderer={textRenderer}/>
                             </Document>
                             {numPages > 1 && (
@@ -184,7 +200,7 @@ function CustomPdfViewer() {
                                         Previous Page
                                     </Button>
                                     <span style={{padding: 8, fontWeight: 600}}>
-                                 {pageNumber} of {numPages}
+                                 {currentPageNumber} of {numPages}
                             </span>
                                     <Button sx={{m: 1}}
                                             size={"small"}
@@ -202,23 +218,25 @@ function CustomPdfViewer() {
 
                     )}
                     <ToastContainer/>
-                </TextSelectionPopupButton>
+                </PdfWrapperCanvas>
                 <NoteDialog
-                    open={dialogOpen}
+                    open={isDialogOpen}
                     onClose={() => {
-                        setDialogOpen(false)
+                        setIsDialogOpen(false)
                     }}
                     onSave={handleSaveNote}
-                    currentPageNumber={pageNumber}
-                    documentTitle={"documentTitle"}
+                    currentPageNumber={currentPageNumber}
+                    documentTitle={documentTitle}
                     location={{
-                        xPDF: location.xPDF,
-                        yPDF: location.yPDF,
-                        xCanvas: location.xCanvas,
-                        yCanvas: location.yCanvas
+                        xPDF: markerLocation.xPDF,
+                        yPDF: markerLocation.yPDF,
+                        xCanvas: markerLocation.xCanvas,
+                        yCanvas: markerLocation.yCanvas
                     }}
                     selectedText={selectedText == undefined ? "" : selectedText}
+
                 />
+
 
             </div>
 
@@ -228,7 +246,7 @@ function CustomPdfViewer() {
         ;
 }
 
-export default CustomPdfViewer;
+export default PdfViewer;
 
 
 

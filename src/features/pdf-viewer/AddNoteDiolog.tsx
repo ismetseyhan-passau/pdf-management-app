@@ -7,7 +7,9 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 
+
 import IDocumentNoteType from "../../types/document.note.type.tsx";
+
 
 interface LocationInformation {
     xPDF: number;
@@ -37,8 +39,14 @@ const NoteDialog: React.FC<NoteDialogProps> = ({
                                                }) => {
     const [noteTitle, setNoteTitle] = useState("");
     const [noteText, setNoteText] = useState("");
+    const [validationError, setValidationError] = useState(false);
 
     const handleSave = () => {
+        if (noteTitle.trim() === "" || noteText.trim() === "") {
+            setValidationError(true);
+            return;
+        }
+
         const noteData: IDocumentNoteType = {
             id: "some_unique_id",
             noteTitle,
@@ -51,19 +59,23 @@ const NoteDialog: React.FC<NoteDialogProps> = ({
             yPdf: location.yPDF,
             xCanvas: location.xCanvas,
             yCanvas: location.yCanvas,
+            createdAt: Date.now().toString(),
         };
 
         onSave(noteData);
+
         setNoteTitle("");
         setNoteText("");
+        setValidationError(false);
         onClose();
     };
 
     const handleOnClose = () => {
         setNoteText("");
         setNoteTitle("");
+        setValidationError(false);
         onClose();
-    }
+    };
 
     return (
         <Dialog open={open} onClose={handleOnClose}>
@@ -91,6 +103,8 @@ const NoteDialog: React.FC<NoteDialogProps> = ({
                     margin="normal"
                     value={noteTitle}
                     onChange={(e) => setNoteTitle(e.target.value)}
+                    error={validationError && noteTitle.trim() === ""}
+                    helperText={validationError && noteTitle.trim() === "" ? "Note title cannot be empty" : ""}
                 />
                 <TextField
                     fullWidth
@@ -100,6 +114,8 @@ const NoteDialog: React.FC<NoteDialogProps> = ({
                     rows={4}
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
+                    error={validationError && noteText.trim() === ""}
+                    helperText={validationError && noteText.trim() === "" ? "Note text cannot be empty" : ""}
                 />
             </DialogContent>
             <DialogActions>
