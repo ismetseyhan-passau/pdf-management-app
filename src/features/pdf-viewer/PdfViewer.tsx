@@ -9,7 +9,7 @@ import Box from "@mui/material/Box";
 
 
 import PdfWrapperCanvas from "./PdfWrapperCanvas.tsx";
-import NoteDialog from "./AddNoteDiolog.tsx";
+import AddNoteDialog from "./AddNoteDialog.tsx";
 import NoteService from "../../services/note.service.tsx";
 import IDocumentNoteType from "../../types/document.note.type.tsx";
 import NotesDrawer from "./NotesDrawer.tsx";
@@ -44,6 +44,8 @@ function PdfViewer(props: PdfViewerProps) {
     const canvasHeight = 842;
     const signatureWidth = 50;
     const signatureHeight = 50;
+
+    const [noteGroupsForEachPage, setNoteGroupsForEachPage] = useState<Array<{ [key: string]: any }>>([]);
 
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -88,6 +90,38 @@ function PdfViewer(props: PdfViewerProps) {
     }, [isDialogOpen]);
 
 
+    useEffect(() => {
+        const newGroupedNotes: {
+            [key: string]: {
+                xCanvas: number;
+                yCanvas: number;
+                xPDF: number;
+                yPDF: number;
+            };
+        }[] = new Array(numPages).fill({}).map(() => ({}));
+        console.log(notesOfDocument);
+        notesOfDocument.forEach((note: IDocumentNoteType) => {
+            const pageIndex = note.currentPageNumber - 1;
+            console.log(pageIndex);
+            if (!newGroupedNotes[pageIndex]) {
+                newGroupedNotes[pageIndex] = {};
+            }
+
+            if (!newGroupedNotes[pageIndex][note.id]) {
+                newGroupedNotes[pageIndex][note.id] = {
+                    xCanvas: note.xCanvas,
+                    yCanvas: note.yCanvas,
+                    xPDF: note.xPdf,
+                    yPDF: note.yPdf,
+                };
+            }
+            console.log(newGroupedNotes);
+        });
+
+        setNoteGroupsForEachPage(newGroupedNotes);
+    }, [notesOfDocument]);
+
+
     function onDocumentLoadSuccess({numPages}: { numPages: number }): void {
         setNumPages(numPages);
     }
@@ -114,13 +148,35 @@ function PdfViewer(props: PdfViewerProps) {
 
 
     const handleSaveNote = async (noteData: IDocumentNoteType) => {
-        if (currentUser?.uid != null && documentId != null) {
-            await NoteService.getInstance().addNote(currentUser?.uid, documentId!, noteData).then(() => {
-                setIsDialogOpen(false);
-                toast.success('Note added successfully!', {
-                    position: toast.POSITION.BOTTOM_RIGHT,
-                });
-            })
+        const noteService = NoteService.getInstance();
+
+        if (!currentUser?.uid || !documentId) {
+            return;
+        }
+
+        try {
+            const noteId = await noteService.addNote(currentUser.uid, documentId, noteData);
+
+            if (noteId) {
+                const newNote = {...noteData, id: noteId};
+                const result = await noteService.updateNote(currentUser.uid, newNote.documentId, noteId, newNote);
+
+                if (result) {
+                    setIsDialogOpen(false);
+                    toast.success('Note added successfully!', {
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                    });
+                } else {
+                    toast.error(result, {
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error saving note:', error);
+            toast.error('An error occurred while saving the note.', {
+                position: toast.POSITION.BOTTOM_RIGHT,
+            });
         }
     };
 
@@ -174,13 +230,14 @@ function PdfViewer(props: PdfViewerProps) {
                     canvasHeight={canvasHeight}
                     enableSelect={selectedText !== undefined && selectedText.length > 0}
                     enableDraw={true}
-                    signatureMap={markerMap}
-                    updateSignatureMap={setMarkerMap}
+                    buttonLocationMap={markerMap}
+                    updateButtonLocationMap={setMarkerMap}
                     currentPage={currentPageNumber}
                     textPlaceholder="Your sign will be here!"
                     addNoteFunction={handleAddNote}
-
+                    noteCursorMapList={noteGroupsForEachPage}
                 >
+
                     {pdfPrintBlocker && (
                         <div>
                             <Document file={documentPath} onLoadSuccess={onDocumentLoadSuccess}>
@@ -219,7 +276,7 @@ function PdfViewer(props: PdfViewerProps) {
                     )}
                     <ToastContainer/>
                 </PdfWrapperCanvas>
-                <NoteDialog
+                <AddNoteDialog
                     open={isDialogOpen}
                     onClose={() => {
                         setIsDialogOpen(false)
@@ -233,6 +290,7 @@ function PdfViewer(props: PdfViewerProps) {
                         xCanvas: markerLocation.xCanvas,
                         yCanvas: markerLocation.yCanvas
                     }}
+                    documentId={documentId}
                     selectedText={selectedText == undefined ? "" : selectedText}
 
                 />

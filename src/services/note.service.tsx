@@ -1,6 +1,7 @@
 import {collection, doc, getDocs, addDoc, updateDoc, deleteDoc, getDoc} from 'firebase/firestore';
 import {db} from '../auth/firebase-env/firebase';
 import IDocumentNoteType from '../types/document.note.type.tsx'
+import error from "../pages/Error.tsx";
 
 class NoteService {
     db = db;
@@ -63,20 +64,23 @@ class NoteService {
         }
     }
 
-    async updateNote(userId: string, documentId: string, noteId: string, updatedNote: IDocumentNoteType): Promise<void> {
+    async updateNote(userId: string, documentId: string, noteId: string, updatedNote: Partial<IDocumentNoteType>): Promise<boolean> {
         try {
             const noteRef = doc(this.db, `userdocumentsnotes/${userId}/documents/${documentId}/notes/${noteId}`);
             await updateDoc(noteRef, updatedNote);
+            return true;
         } catch (error) {
             console.error("Error updating note:", error);
             throw error;
         }
     }
 
-    async deleteNote(userId: string, documentId: string, noteId: string): Promise<void> {
+
+    async deleteNote(userId: string, documentId: string, noteId: string): Promise<boolean> {
         try {
             const noteRef = doc(this.db, `userdocumentsnotes/${userId}/documents/${documentId}/notes/${noteId}`);
             await deleteDoc(noteRef);
+            return true;
         } catch (error) {
             console.error("Error deleting note:", error);
             throw error;

@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography } from '@mui/material';
+import React, {useState} from 'react';
+import {Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography} from '@mui/material';
+import {useAuth} from "../../contexts/AuthContext.tsx";
+import NoteService from "../../services/note.service.tsx";
+import {toast} from "react-toastify";
 
 interface NoteDialogProps {
     open: boolean;
@@ -18,35 +21,57 @@ interface NoteDialogProps {
     };
 }
 
-const NoteDialog: React.FC<NoteDialogProps> = ({ open, mode, onClose, noteDetails }) => {
+const NoteDialog: React.FC<NoteDialogProps> = ({open, mode, onClose, noteDetails}) => {
     const [editedNote, setEditedNote] = useState({
         noteTitle: noteDetails.noteTitle,
         noteText: noteDetails.noteText,
     });
+    const {currentUser} = useAuth();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
+        const {name, value} = event.target;
         setEditedNote(prevNote => ({
             ...prevNote,
             [name]: value,
         }));
     };
 
-    const handleSaveChanges = () => {
-        // Handle saving changes here
-        console.log('Edited Note:', editedNote);
-        onClose();
+    const handleSaveChanges = async () => {
+        if (mode !== 'edit') {
+            return; // No need to proceed if not in edit mode
+        }
+
+        try {
+            const result = await NoteService.getInstance().updateNote(currentUser?.uid!, noteDetails.documentId, noteDetails.noteId, editedNote);
+
+            if (result === true) {
+                toast.success('Note updated successfully!', {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                });
+                onClose();
+            } else {
+                toast.warning(`There was an error: ${result}`, {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                });
+            }
+        } catch (error) {
+            console.error("Error updating note:", error);
+            toast.error("An error occurred while updating the note.", {
+                position: toast.POSITION.BOTTOM_RIGHT,
+            });
+        }
     };
 
+
     return (
-        <Dialog open={open} onClose={onClose}>
+        <Dialog open={open} onClose={onClose} maxWidth={'md'}>
             <DialogTitle>{mode === 'edit' ? 'Edit Note' : 'Note Details'}</DialogTitle>
             <DialogContent>
                 <Typography variant="h6">Document Id:</Typography>
                 <Typography>{noteDetails.documentId}</Typography>
 
-                <Typography variant="h6">Document Title:</Typography>
-                <Typography>{noteDetails.documentTitle}</Typography>
+                <Typography variant="h6">Note Id:</Typography>
+                <Typography>{noteDetails.noteId}</Typography>
 
                 <Typography variant="h6">Note X:</Typography>
                 <Typography>{noteDetails.noteX}</Typography>
@@ -54,8 +79,10 @@ const NoteDialog: React.FC<NoteDialogProps> = ({ open, mode, onClose, noteDetail
                 <Typography variant="h6">Note Y:</Typography>
                 <Typography>{noteDetails.noteY}</Typography>
 
-                <Typography variant="h6">Note Id:</Typography>
-                <Typography>{noteDetails.noteId}</Typography>
+
+                <Typography variant="h6">Document Title:</Typography>
+                <Typography>{noteDetails.documentTitle}</Typography>
+
 
                 <Typography variant="h6">Selected Text:</Typography>
                 <Typography>{noteDetails.selectedText}</Typography>

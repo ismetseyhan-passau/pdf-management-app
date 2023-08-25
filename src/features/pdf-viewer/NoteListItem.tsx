@@ -4,12 +4,16 @@ import {
     CardContent,
     Typography,
     IconButton,
-    Tooltip,
+    Tooltip, Box,
 } from '@mui/material';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import NoteDialog from "./NoteDiolog.tsx";
+import AlertDialog from "../../components/AlertDialog/AlertDialog.tsx";
+import NoteService from "../../services/note.service.tsx";
+import {useAuth} from "../../contexts/AuthContext.tsx";
+import {toast} from "react-toastify";
 
 interface NoteCardProps {
     noteId: string;
@@ -21,6 +25,7 @@ interface NoteCardProps {
     createdAt: string;
     noteX: number;
     noteY: number;
+    notePage: number
 }
 
 const NoteListItem: React.FC<NoteCardProps> = ({
@@ -32,11 +37,14 @@ const NoteListItem: React.FC<NoteCardProps> = ({
                                                    noteText,
                                                    createdAt,
                                                    noteX,
-                                                   noteY
+                                                   noteY,
+                                                   notePage
                                                }) => {
 
+    const {currentUser} = useAuth();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [mode, setMode] = useState<"show" | "edit">('show');
+    const [deleteComfirmation, setDeleteComfirmation] = useState(false);
 
     const handleDialogClose = () => {
         setIsDialogOpen(false);
@@ -65,7 +73,10 @@ const NoteListItem: React.FC<NoteCardProps> = ({
                             </IconButton>
                         </Tooltip>
                         <Tooltip title="Delete Note" arrow>
-                            <IconButton size="small" color="error">
+                            <IconButton size="small" color="error" onClick={() => {
+                                setDeleteComfirmation(true)
+
+                            }}>
                                 <DeleteTwoToneIcon fontSize="small"/>
                             </IconButton>
                         </Tooltip>
@@ -78,6 +89,11 @@ const NoteListItem: React.FC<NoteCardProps> = ({
                 <Typography variant="body2" component="p" className="note-text">
                     <span style={{fontWeight: 'bold'}}>Note:</span> {noteText.length > 200 ?
                     <span>{noteText.substring(0, 200)}...</span> : noteText}
+                </Typography>
+
+
+                <Typography variant="subtitle1" component="p" className="note-text">
+                    <span style={{fontWeight: 'bold'}}>Page:</span> {notePage}
                 </Typography>
                 <div style={{display: 'flex', justifyContent: 'flex-start', marginTop: '8px'}}>
                     <Tooltip title="Look Note" arrow>
@@ -107,6 +123,36 @@ const NoteListItem: React.FC<NoteCardProps> = ({
                     noteY
                 }}
             />
+
+            <Box display="flex" justifyContent="center" p={2}>
+                <AlertDialog
+                    title="Confirm Deletion"
+                    content="Are you sure you want to delete the selected note?"
+                    agreeButtonText="Yes, Delete"
+                    disagreeButtonText="Cancel"
+                    onAgree={async () => {
+                        if (currentUser?.uid != null) {
+                            const result = await NoteService.getInstance().deleteNote(currentUser?.uid, documentId, noteId);
+                            if (result === true) {
+                                toast.success('Note deleted successfully!', {
+                                    position: toast.POSITION.BOTTOM_RIGHT,
+                                });
+                                setDeleteComfirmation(false);
+                            } else {
+                                toast.warning(`There was an error: ${result}`, {
+                                    position: toast.POSITION.BOTTOM_RIGHT,
+                                });
+                            }
+                        }
+                    }}
+                    onDisagree={() => {
+                        setDeleteComfirmation(false);
+                    }}
+                    open={deleteComfirmation}
+                    onClose={() => setDeleteComfirmation(false)}
+                />
+
+            </Box>
         </Card>
     );
 };

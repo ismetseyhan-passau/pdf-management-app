@@ -1,8 +1,7 @@
 import React, {useEffect, MouseEvent, ReactNode} from "react";
 import PropTypes from "prop-types";
 
-
-interface SignatureMap {
+interface LocationMap {
     [key: number]: {
         xCanvas: number;
         yCanvas: number;
@@ -11,7 +10,7 @@ interface SignatureMap {
     };
 }
 
-interface Props {
+interface PdfWrapperCanvasProps {
     enableSelect?: boolean;
     enableDraw?: boolean;
     signatureWidth: number;
@@ -19,8 +18,8 @@ interface Props {
     canvasWidth: number;
     canvasHeight: number;
     currentPage: number;
-    signatureMap: SignatureMap;
-    updateSignatureMap: (newSignatureMap: SignatureMap) => void;
+    buttonLocationMap: LocationMap;
+    updateButtonLocationMap: (newLocationMap: LocationMap) => void;
     textPlaceholder?: string;
     children?: ReactNode;
     addNoteFunction: (
@@ -29,6 +28,10 @@ interface Props {
         xCanvas: number,
         yCanvas: number
     ) => boolean;
+    noteCursorMapList: LocationMap[];
+
+
+
 }
 
 const A4SIZE = {
@@ -38,26 +41,43 @@ const A4SIZE = {
     },
 };
 
-const PdfWrapperCanvas: React.FC<Props> = ({
-                                                       enableSelect = true,
-                                                       enableDraw = true,
-                                                       canvasWidth,
-                                                       canvasHeight,
-                                                       currentPage,
-                                                       signatureMap,
-                                                       updateSignatureMap,
-                                                       children,
-                                                       addNoteFunction,
-                                                   }) => {
+const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
+                                                               enableSelect = true,
+                                                               enableDraw = true,
+                                                               canvasWidth,
+                                                               canvasHeight,
+                                                               currentPage,
+                                                               buttonLocationMap,
+                                                               updateButtonLocationMap,
+                                                               children,
+                                                               addNoteFunction,
+                                                               noteCursorMapList,
+                                                           }) => {
     useEffect(() => {
         if (enableDraw) {
             clearOverlayCanvas();
-            if (signatureMap[currentPage]) {
-                console.log(signatureMap[currentPage]);
-
+            if (buttonLocationMap[currentPage]) {
+                console.log(buttonLocationMap[currentPage]);
             }
+
         }
     }, [currentPage]);
+
+
+    useEffect(() => {
+        if (enableDraw) {
+            clearPinsOnCancas()
+            const pageIndex = currentPage - 1;
+            if (noteCursorMapList[pageIndex]) {
+                for (let noteCursorMapListElementKey in noteCursorMapList[pageIndex]) {
+                    let item = noteCursorMapList[pageIndex][noteCursorMapListElementKey];
+                    console.log(item)
+                    drawPinsOverlayCanvas(item.xPDF, item.yPDF, item.xCanvas, item.yCanvas)
+                }
+            }
+        }
+    }, [noteCursorMapList,currentPage]);
+
 
     const removeAddButton = () => {
         const addButton = document.getElementById("addNoteItem");
@@ -73,7 +93,25 @@ const PdfWrapperCanvas: React.FC<Props> = ({
         const ctx = canvasOverlay.getContext("2d");
         if (ctx) {
             ctx.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
-            removeAddButton();
+            removeAddButton(); //todo
+        }
+    };
+
+    function removeNotePin() {
+        const notePins = document.querySelectorAll("#notePinIcon");
+        notePins.forEach((notePin) => {
+            notePin.remove();
+        });
+    }
+
+    const clearPinsOnCancas = () => {
+        const canvasOverlay = document.getElementById(
+            "sc-canvas-overlay"
+        ) as HTMLCanvasElement;
+        const ctx = canvasOverlay.getContext("2d");
+        if (ctx) {
+            ctx.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
+            removeNotePin();
         }
     };
 
@@ -108,6 +146,37 @@ const PdfWrapperCanvas: React.FC<Props> = ({
         }
     };
 
+
+    const drawPinsOverlayCanvas = (
+        signX: number,
+        signY: number,
+        canvasX: number,
+        canvasY: number
+    ) => {
+        if (true) {
+            const notePinIcon = document.createElement("div");
+            notePinIcon.id = "notePinIcon";
+            notePinIcon.style.position = "absolute";
+            notePinIcon.style.left = signX + "px";
+
+            notePinIcon.style.top = signY - 30 + "px";
+            notePinIcon.style.zIndex = "1200";
+
+            const iconHtml = '<div style="width: 32px; height: 32px;"><img src="/src/assets/marker.png" alt="Note Pin Icon" width="32" height="32"></div>';
+
+            notePinIcon.innerHTML = iconHtml;
+
+
+            notePinIcon.addEventListener("click", () => {
+                console.log("Clicked");
+            });
+
+            const signatureSelectorDiv = document.getElementById("kpmg-sign-selector") as HTMLDivElement;
+            signatureSelectorDiv.appendChild(notePinIcon);
+        }
+    };
+
+
     const getPosition = (evt: MouseEvent<HTMLDivElement>) => {
         const signatureSelectorDiv = document.querySelector(
             "#kpmg-sign-selector"
@@ -129,25 +198,27 @@ const PdfWrapperCanvas: React.FC<Props> = ({
                 (A4SIZE.DPI_72.HEIGHT * mousePosition.y) / canvas.height
             );
 
-            if (canvas.width > canvasWidth || canvas.height > canvasHeight) {
+            if (canvas.width >= canvasWidth || canvas.height >= canvasHeight) {
                 clearOverlayCanvas();
+
                 drawOnOverlayCanvas(xPDF, yPDF, x, y);
 
 
                 console.log("Canvas:" + x + ", " + y);
                 console.log("Pdf:" + xPDF + ", " + yPDF);
 
-                const newSignatureMap = {...signatureMap};
+                const newSignatureMap = {...buttonLocationMap};
                 newSignatureMap[currentPage] = {
                     xCanvas: x,
                     yCanvas: y,
                     xPDF: xPDF,
                     yPDF: yPDF,
                 };
-                updateSignatureMap(newSignatureMap);
+                updateButtonLocationMap(newSignatureMap);
             } else if (enableDraw) {
                 clearOverlayCanvas();
                 removeAddButton();
+
                 //  drawOnOverlayCanvas(x, y, "red", textPlaceholder);
             }
         }
@@ -198,8 +269,8 @@ PdfWrapperCanvas.propTypes = {
     canvasWidth: PropTypes.number.isRequired,
     canvasHeight: PropTypes.number.isRequired,
     currentPage: PropTypes.number.isRequired,
-    signatureMap: PropTypes.object.isRequired,
-    updateSignatureMap: PropTypes.func.isRequired,
+    buttonLocationMap: PropTypes.object.isRequired,
+    updateButtonLocationMap: PropTypes.func.isRequired,
     textPlaceholder: PropTypes.string,
     children: PropTypes.node,
 };
