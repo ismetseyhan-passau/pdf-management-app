@@ -38,7 +38,7 @@ const A4SIZE = {
     },
 };
 
-const TextSelectionPopupButton: React.FC<Props> = ({
+const PdfWrapperCanvas: React.FC<Props> = ({
                                                        enableSelect = true,
                                                        enableDraw = true,
                                                        canvasWidth,
@@ -190,7 +190,7 @@ const TextSelectionPopupButton: React.FC<Props> = ({
     );
 };
 
-TextSelectionPopupButton.propTypes = {
+PdfWrapperCanvas.propTypes = {
     enableSelect: PropTypes.bool,
     enableDraw: PropTypes.bool,
     signatureWidth: PropTypes.number.isRequired,
@@ -204,4 +204,4 @@ TextSelectionPopupButton.propTypes = {
     children: PropTypes.node,
 };
 
-export default TextSelectionPopupButton;
+export default PdfWrapperCanvas;
