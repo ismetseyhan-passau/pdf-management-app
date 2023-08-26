@@ -16,19 +16,22 @@ interface DrawerProps {
     currentPage: number;
     numPages: number;
     noteList: IDocumentNoteType[];
+    setSelectedNote: React.Dispatch<React.SetStateAction<IDocumentNoteType | null>>;
+    selectedNote: IDocumentNoteType | null
 }
 
 const NotesDrawer: React.FC<DrawerProps> = ({
-                                                documentId,
                                                 documentTitle,
                                                 currentPage,
                                                 numPages,
                                                 noteList,
+                                                setSelectedNote,
+                                                selectedNote
                                             }) => {
 
 
-    const handlePageSelect = (documentId: string) => {
-        // Implement your logic for handling page selection
+    const handlePageSelect = (noteId: string) => {
+        setSelectedNote(noteList.find(note => note.id === noteId) || null);
     };
 
     const [filteredNoteList, setFilteredNoteList] = useState(noteList);
@@ -70,7 +73,7 @@ const NotesDrawer: React.FC<DrawerProps> = ({
                 </Typography>
                 <Box mt={2}>
                     <Typography variant="body1">
-                        Show :  All / Current Page Notes
+                        Show : All / Current Page Notes
                     </Typography>
                     <Switch
                         checked={showCurrentPageNotes}
@@ -82,18 +85,25 @@ const NotesDrawer: React.FC<DrawerProps> = ({
             <List style={{flex: 1}}>
                 {filteredNoteList.map((note) => (
                     <ListItem key={note.id} button onClick={() => handlePageSelect(note.id)}>
-                        <NoteListItem
-                            noteId={note.id}
-                            documentId={note.documentId}
-                            documentTitle={note.documentTitle}
-                            noteTitle={note.noteTitle}
-                            selectedText={note.selectedText}
-                            noteText={note.noteText}
-                            createdAt={note.createdAt}
-                            noteX={note.xPdf}
-                            noteY={note.yPdf}
-                            notePage = {note.currentPageNumber}
-                        />
+                        <div style={{
+                            width: '100%',
+                            borderRadius: 10,
+                            border: selectedNote?.id === note.id ? "2px dotted red" : "none"
+                        }}>
+                            <NoteListItem
+                                noteId={note.id}
+                                documentId={note.documentId}
+                                documentTitle={note.documentTitle}
+                                noteTitle={note.noteTitle}
+                                selectedText={note.selectedText}
+                                noteText={note.noteText}
+                                createdAt={note.createdAt}
+                                noteX={note.xPdf}
+                                noteY={note.yPdf}
+                                notePage={note.currentPageNumber}
+                            />
+                        </div>
+
                     </ListItem>
                 ))}
             </List>

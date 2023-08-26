@@ -40,6 +40,9 @@ import {useNavigate} from "react-router-dom";
 interface RecentDocumentsTableProps {
     className?: string;
     documents: IDocument[];
+    tableTitle?: string;
+    hideEdit?: boolean;
+    hideEDelete?: boolean;
 }
 
 interface Filters {
@@ -90,7 +93,7 @@ const applyPagination = (
     return documents.slice(page * limit, page * limit + limit);
 };
 
-const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
+const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents, tableTitle}) => {
     const navigate = useNavigate();
     const {currentUser} = useAuth();
     const [selectedDocuments, setSelectedDocuments] = useState<string[]>(
@@ -104,6 +107,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
         // @ts-ignore
         types: null
     });
+
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
     const statusOptions = [
         {
@@ -226,7 +230,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents}) => {
                             </FormControl>
                         </Box>
                     }
-                    title="Documents"
+                    title={tableTitle ? tableTitle : "Documents"}
                 />
             )}
             <Divider/>
