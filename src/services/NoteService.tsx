@@ -1,6 +1,6 @@
 import {collection, doc, getDocs, addDoc, updateDoc, deleteDoc, getDoc} from 'firebase/firestore';
-import {db} from '../auth/firebase-env/firebase';
-import IDocumentNoteType from '../types/document.note.type.tsx'
+import {db} from '../auth/firebase_env/firebase';
+import IDocumentNoteType from '../types/IDocumentNote.tsx'
 
 
 class NoteService {

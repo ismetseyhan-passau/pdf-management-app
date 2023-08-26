@@ -1,6 +1,6 @@
 import {collection, doc, getDocs, addDoc, updateDoc, deleteDoc, getDoc} from 'firebase/firestore';
-import {db} from '../auth/firebase-env/firebase';
-import IDocument from '../types/document.type';
+import {db} from '../auth/firebase_env/firebase';
+import IDocument from '../types/IDocument.tsx';
 
 class DocumentService {
     db = db;
@@ -70,6 +70,7 @@ class DocumentService {
         try {
             const userDocumentRef = doc(this.db, `documents/${userId}/document/${documentId}`);
             await updateDoc(userDocumentRef, updatedDocument);
+
         } catch (error) {
             console.error("Error updating document:", error);
             throw error;

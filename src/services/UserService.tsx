@@ -1,6 +1,7 @@
 import {collection, getDocs, deleteDoc, doc, getDoc, setDoc} from 'firebase/firestore';
-import {db} from '../auth/firebase-env/firebase';
-import IUser from '../types/user.type';
+import {db} from '../auth/firebase_env/firebase';
+import IUser from '../types/IUser.tsx';
+import IConfig from "../types/IConfig.tsx";
 
 class UserService {
     private static instance: UserService;
@@ -17,6 +18,7 @@ class UserService {
         }
         return UserService.instance;
     }
+
 
     async getUsers(): Promise<IUser[]> {
         try {
@@ -72,6 +74,23 @@ class UserService {
             console.error('Error fetching user:', error);
             throw error;
         }
+    }
+
+
+    async getDemoUserCredentials(): Promise<IConfig | null> {
+        try {
+            const userDocRef = doc(this.db, `config/K6GNo8xvHhMglUd9vPzd`);
+            const userDocSnapshot = await getDoc(userDocRef);
+            if (userDocSnapshot.exists()) {
+                return userDocSnapshot.data() as IConfig;
+
+            }
+            return null;
+        } catch (error) {
+            console.error('Error fetching  demo user:', error);
+            throw error;
+        }
+
     }
 
 }
