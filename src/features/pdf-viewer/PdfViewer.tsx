@@ -260,6 +260,7 @@ function PdfViewer(props: PdfViewerProps) {
                             hideMarkers={hideMarkers}
                             onlySelectedMarker={onlySelectedMarker}
                             selectedNote={selectedNote}
+                            setSelectedText={setSelectedText}
                         >
 
                             {pdfPrintBlocker && (
@@ -364,6 +365,7 @@ function PdfViewer(props: PdfViewerProps) {
                         }}
                         documentId={documentId}
                         selectedText={selectedText == undefined ? "" : selectedText}
+
 
                     />
 
