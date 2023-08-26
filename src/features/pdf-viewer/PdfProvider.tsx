@@ -6,6 +6,10 @@ import IDocumentNoteType from "../../types/document.note.type.tsx";
 import PdfViewer from "./PdfViewer.tsx";
 import {useParams} from "react-router-dom";
 import DocumentService from "../../services/document.service.tsx";
+import documentService from "../../services/document.service.tsx";
+import IDocument from "../../types/document.type.tsx";
+import {Typography} from "@mui/material";
+import RecentDocumentsTable from "../document_management/RecentDocumentsTable.tsx";
 
 
 function PdfProvider() {
@@ -14,14 +18,22 @@ function PdfProvider() {
     const [documentPath, setDocumentPath] = useState<string | undefined>(undefined);
     const [documentTitle, setDocumentTitle] = useState("");
     const [notesOfDocument, setNotesOfDocument] = useState<IDocumentNoteType[]>([]);
-
+    const [userDocuments, setUserDocuments] = useState<IDocument[]>([]);
 
     useEffect(() => {
         if (documentId !== undefined) {
             fetchDocument(documentId);
+        } else {
+            fetchPdfDocumentsOfUser(currentUser?.uid!)
         }
     }, [documentId, currentUser]);
 
+
+    async function fetchPdfDocumentsOfUser(userId: string) {
+        let list = await documentService.getInstance().getDocumentsByUserId(userId);
+        const pdfDocuments = list.filter(doc => doc.type === "pdf");
+        setUserDocuments(pdfDocuments);
+    }
 
     async function fetchDocument(documentId: string) {
         try {
@@ -52,7 +64,7 @@ function PdfProvider() {
 
     return (
         <div>
-            {documentId !== undefined && documentPath !== undefined && (
+            {documentId !== undefined && documentPath !== undefined ? (
                 <PdfViewer
                     currentUser={currentUser}
                     documentId={documentId}
@@ -60,8 +72,17 @@ function PdfProvider() {
                     documentTitle={documentTitle}
                     notesOfDocument={notesOfDocument}
                 />
+            ) : (
+                <div style={{margin: 14}}>
+                    {userDocuments.length > 0 ? (
+                        <Typography variant="h3">Please click the "show document" button to view the PDF</Typography>
+                    ) : (
+                        <Typography variant="h3">Please upload the PDF file via the documents section.</Typography>
+                    )}
+                    <RecentDocumentsTable documents={userDocuments} tableTitle="Your PDF Documents"/>
+                </div>
             )}
-            {documentId === undefined && <div>No PDF selected.</div>}
+
         </div>
     );
 }

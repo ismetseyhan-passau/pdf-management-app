@@ -18,7 +18,7 @@ interface LocationInformation {
     yCanvas: number;
 }
 
-interface NoteDialogProps {
+interface AddNoteDialogProps {
     open: boolean;
     onClose: () => void;
     onSave: (noteData: IDocumentNoteType) => void;
@@ -26,17 +26,22 @@ interface NoteDialogProps {
     documentTitle: string;
     location: LocationInformation;
     selectedText: string;
+    documentId: string;
 }
 
-const NoteDialog: React.FC<NoteDialogProps> = ({
-                                                   open,
-                                                   onClose,
-                                                   onSave,
-                                                   currentPageNumber,
-                                                   documentTitle,
-                                                   location,
-                                                   selectedText,
-                                               }) => {
+
+const AddNoteDialog: React.FC<AddNoteDialogProps> = ({
+                                                         open,
+                                                         onClose,
+                                                         onSave,
+                                                         currentPageNumber,
+                                                         documentTitle,
+                                                         location,
+                                                         selectedText,
+                                                         documentId,
+
+                                                     }) => {
+
     const [noteTitle, setNoteTitle] = useState("");
     const [noteText, setNoteText] = useState("");
     const [validationError, setValidationError] = useState(false);
@@ -49,12 +54,12 @@ const NoteDialog: React.FC<NoteDialogProps> = ({
 
         const noteData: IDocumentNoteType = {
             id: "some_unique_id",
-            noteTitle,
-            documentId: "current_document_id",
-            documentTitle,
-            currentPageNumber,
-            selectedText,
-            noteText,
+            documentId: documentId,
+            noteTitle: noteTitle,
+            documentTitle: documentTitle,
+            currentPageNumber: currentPageNumber,
+            selectedText: selectedText,
+            noteText: noteText,
             xPdf: location.xPDF,
             yPdf: location.yPDF,
             xCanvas: location.xCanvas,
@@ -130,4 +135,4 @@ const NoteDialog: React.FC<NoteDialogProps> = ({
     );
 };
 
-export default NoteDialog;
+export default AddNoteDialog;
