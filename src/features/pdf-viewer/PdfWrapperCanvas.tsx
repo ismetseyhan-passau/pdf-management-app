@@ -1,6 +1,6 @@
 import React, {useEffect, MouseEvent, ReactNode} from "react";
 import PropTypes from "prop-types";
-import IDocumentNoteType from "../../types/document.note.type.tsx";
+import IDocumentNoteType from "../../types/IDocumentNote.tsx";
 
 interface NoteLocationMap {
     [key: number]: {
@@ -21,7 +21,6 @@ interface PdfWrapperCanvasProps {
     currentPage: number;
     buttonLocationMap: NoteLocationMap;
     updateButtonLocationMap: (newLocationMap: NoteLocationMap) => void;
-    textPlaceholder?: string;
     children?: ReactNode;
     addNoteFunction: (
         xPDF: number,
@@ -182,7 +181,7 @@ const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
 
         const iconHtml = `
         <div style="width: 32px; height: 32px;">
-            <img src="/marker.png" alt="Note Pin Icon" width="32" height="32">
+            <img src="/src/assets/static/marker.png" alt="Note Pin Icon" width="32" height="32">
         </div>
     `;
 

@@ -10,8 +10,8 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import NoteDialog from "./NoteDiolog.tsx";
-import AlertDialog from "../../components/AlertDialog/AlertDialog.tsx";
-import NoteService from "../../services/note.service.tsx";
+import AlertDialog from "../../components/alert_dialog/AlertDialog.tsx";
+import NoteService from "../../services/NoteService.tsx";
 import {useAuth} from "../../contexts/AuthContext.tsx";
 import {toast} from "react-toastify";
 
@@ -133,7 +133,7 @@ const NoteListItem: React.FC<NoteCardProps> = ({
                     onAgree={async () => {
                         if (currentUser?.uid != null) {
                             const result = await NoteService.getInstance().deleteNote(currentUser?.uid, documentId, noteId);
-                            if (result === true) {
+                            if (result) {
                                 toast.success('Note deleted successfully!', {
                                     position: toast.POSITION.BOTTOM_RIGHT,
                                 });

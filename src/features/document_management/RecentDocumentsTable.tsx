@@ -1,13 +1,14 @@
 import {FC, ChangeEvent, useState,} from 'react';
 import PropTypes from 'prop-types';
-import Label from '../../components/Label';
+import Label from '../../components/label/Label.tsx';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import BulkActions from './BulkActions';
-import IDocument, {DocumentTypeStatus} from "../../types/document.type.tsx";
-import DocumentService from "../../services/document.service.tsx";
+import IDocument, {DocumentTypeStatus} from "../../types/IDocument.tsx";
+import DocumentService from "../../services/DocumentService.tsx";
 import {useAuth} from "../../contexts/AuthContext.tsx";
+import {format} from 'date-fns';
 
 
 import {
@@ -32,9 +33,11 @@ import {
     useTheme,
     CardHeader
 } from '@mui/material';
-import AlertDialog from "../../components/AlertDialog/AlertDialog.tsx";
-import ImageViewer from "../../components/ImageViewer/ImageViewer.tsx";
+import AlertDialog from "../../components/alert_dialog/AlertDialog.tsx";
+import ImageViewer from "../../components/image_viewer/ImageViewer.tsx";
 import {useNavigate} from "react-router-dom";
+import EditDocumentDialog from "./EditDocumentDialog.tsx";
+import {toast} from "react-toastify";
 
 
 interface RecentDocumentsTableProps {
@@ -96,6 +99,7 @@ const applyPagination = (
 const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents, tableTitle}) => {
     const navigate = useNavigate();
     const {currentUser} = useAuth();
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedDocuments, setSelectedDocuments] = useState<string[]>(
         []
     );
@@ -200,7 +204,8 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents, tableTi
         setViewerOpen(true);
     };
 
-    const [selectedOperationId, setSelectedOperationId] = useState<string | null>(null);
+    const [selectedDeletionOperationId, setSelectedDeletionOperationId] = useState<string | null>(null);
+    const [selectedDocumentToUpdate, setSelectedDocumentToUpdate] = useState<IDocument | null>(null);
     return (
         <Card>
             {selectedBulkActions && (
@@ -296,7 +301,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents, tableTi
                                             {document.title}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary" noWrap>
-                                            {document.createdAt}
+                                            {format(new Date(document.createdAt), 'dd / MM / yyyy / HH:mm')}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="right">
@@ -307,7 +312,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents, tableTi
                                             gutterBottom
                                             noWrap
                                         >
-                                            {document.createdAt}
+                                            {format(new Date(document.createdAt), 'dd / MM / yyyy / HH:mm')}
                                         </Typography>
                                     </TableCell>
 
@@ -350,6 +355,10 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents, tableTi
                                                 }}
                                                 color="inherit"
                                                 size="small"
+                                                onClick={() => {
+                                                    setSelectedDocumentToUpdate(document);
+                                                    setEditDialogOpen(true);
+                                                }}
                                             >
                                                 <EditTwoToneIcon fontSize="small"/>
                                             </IconButton>
@@ -363,7 +372,7 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents, tableTi
                                                 color="inherit"
                                                 size="small"
                                                 onClick={() => {
-                                                    setSelectedOperationId(document.id)
+                                                    setSelectedDeletionOperationId(document.id)
                                                     setShowDeleteConfirmation(true);
                                                 }}
                                             >
@@ -399,14 +408,17 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents, tableTi
                     onAgree={async () => {
 
                         if (currentUser?.uid) {
-                            await DocumentService.getInstance().deleteDocument(currentUser?.uid, selectedOperationId!);
+                            await DocumentService.getInstance().deleteDocument(currentUser?.uid, selectedDeletionOperationId!);
                             setShowDeleteConfirmation(false);
-                            setSelectedOperationId(null);
+                            setSelectedDeletionOperationId(null);
+                            toast.success('Document deleted successfully!', {
+                                position: toast.POSITION.BOTTOM_RIGHT,
+                            })
                         }
                     }}
                     onDisagree={() => {
                         setShowDeleteConfirmation(false);
-                        setSelectedOperationId(null);
+                        setSelectedDeletionOperationId(null);
                     }}
                     open={showDeleteConfirmation}
                     onClose={() => setShowDeleteConfirmation(false)}
@@ -415,6 +427,14 @@ const RecentDocumentsTable: FC<RecentDocumentsTableProps> = ({documents, tableTi
             {viewerOpen && (
                 <ImageViewer imageUrl={viewerImageUrl} onClose={() => setViewerOpen(false)}/>
             )}
+
+
+            <EditDocumentDialog
+                open={editDialogOpen}
+                onClose={() => setEditDialogOpen(false)}
+                document={selectedDocumentToUpdate!}
+            />
+
 
         </Card>
     );

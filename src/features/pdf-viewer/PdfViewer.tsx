@@ -10,13 +10,14 @@ import Box from "@mui/material/Box";
 
 import PdfWrapperCanvas from "./PdfWrapperCanvas.tsx";
 import AddNoteDialog from "./AddNoteDialog.tsx";
-import NoteService from "../../services/note.service.tsx";
-import IDocumentNoteType from "../../types/document.note.type.tsx";
+import NoteService from "../../services/NoteService.tsx";
+import IDocumentNoteType from "../../types/IDocumentNote.tsx";
 import NotesDrawer from "./NotesDrawer.tsx";
 import {Switch} from "@mui/material";
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
+import {Helmet} from "react-helmet-async";
 
 
 interface PdfViewerProps {
@@ -99,10 +100,8 @@ function PdfViewer(props: PdfViewerProps) {
 
             };
         }[] = new Array(numPages).fill({}).map(() => ({}));
-        console.log(notesOfDocument);
         notesOfDocument.forEach((note: IDocumentNoteType) => {
             const pageIndex = note.currentPageNumber - 1;
-            console.log(pageIndex);
             if (!newGroupedNotes[pageIndex]) {
                 newGroupedNotes[pageIndex] = {};
             }
@@ -227,146 +226,151 @@ function PdfViewer(props: PdfViewerProps) {
 
 
     return (
-        <div style={{position: "relative"}}>
+        <>
+            <Helmet>
+                <title> {documentTitle}</title>
+            </Helmet>
+            <div style={{position: "relative"}}>
 
-            {pdfPrintBlocker && (
-                <NotesDrawer
-                    documentId={documentId}
-                    documentTitle={documentTitle}
-                    currentPage={currentPageNumber}
-                    numPages={numPages}
-                    noteList={notesOfDocument}
-                    setSelectedNote={setSelectedNote}
-                    selectedNote={selectedNote}
-
-                />
-            )}
-
-            <div style={{width: "100%", height: "100vh"}}>
-                <Box sx={{display: 'flex', justifyContent: 'flex-start', alignItems: 'start', m: 1}}>
-                    <PdfWrapperCanvas
-                        canvasWidth={canvasWidth}
-                        canvasHeight={canvasHeight}
-                        enableSelect={selectedText !== undefined && selectedText.length > 0}
-                        enableDraw={true}
-                        buttonLocationMap={markerMap}
-                        updateButtonLocationMap={setMarkerMap}
+                {pdfPrintBlocker && (
+                    <NotesDrawer
+                        documentId={documentId}
+                        documentTitle={documentTitle}
                         currentPage={currentPageNumber}
-                        textPlaceholder="Your sign will be here!"
-                        addNoteFunction={handleAddNote}
-                        noteCursorMapList={noteGroupsForEachPage}
-                        hideMarkers={hideMarkers}
-                        onlySelectedMarker={onlySelectedMarker}
+                        numPages={numPages}
+                        noteList={notesOfDocument}
+                        setSelectedNote={setSelectedNote}
                         selectedNote={selectedNote}
-                    >
 
-                        {pdfPrintBlocker && (
-                            <div>
-                                <Document file={documentPath} onLoadSuccess={onDocumentLoadSuccess}>
-                                    <Outline onItemClick={onItemClick}/>
-                                    <Page pageNumber={currentPageNumber}
-                                          customTextRenderer={textRenderer}/>
-                                </Document>
-                            </div>
+                    />
+                )}
 
-                        )}
+                <div style={{width: "100%", height: "100vh"}}>
+                    <Box sx={{display: 'flex', justifyContent: 'flex-start', alignItems: 'start', m: 1}}>
+                        <PdfWrapperCanvas
+                            canvasWidth={canvasWidth}
+                            canvasHeight={canvasHeight}
+                            enableSelect={selectedText !== undefined && selectedText.length > 0}
+                            enableDraw={true}
+                            buttonLocationMap={markerMap}
+                            updateButtonLocationMap={setMarkerMap}
+                            currentPage={currentPageNumber}
+                            addNoteFunction={handleAddNote}
+                            noteCursorMapList={noteGroupsForEachPage}
+                            hideMarkers={hideMarkers}
+                            onlySelectedMarker={onlySelectedMarker}
+                            selectedNote={selectedNote}
+                        >
 
-                    </PdfWrapperCanvas>
+                            {pdfPrintBlocker && (
+                                <div>
+                                    <Document file={documentPath} onLoadSuccess={onDocumentLoadSuccess}>
+                                        <Outline onItemClick={onItemClick}/>
+                                        <Page pageNumber={currentPageNumber}
+                                              customTextRenderer={textRenderer}/>
+                                    </Document>
+                                </div>
 
-                    <div style={{ margin: '0.5rem', width: '15%' }}>
-                        <TextField
-                            placeholder="Search Text"
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            variant="outlined"
-                            size="small"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                                style: { padding: '0.1rem' }
-                            }}
-                        />
-                    </div>
-                </Box>
+                            )}
 
+                        </PdfWrapperCanvas>
 
-                <ToastContainer/>
-                <Box sx={{display: 'flex', justifyContent: 'flex-start', alignItems: 'center', m: 1}}>
-                    <Box>
-                        {numPages > 1 && (
-                            <Box sx={{display: 'flex', alignItems: 'center'}}>
-                                <Button
-                                    variant="contained"
-                                    size="small"
-                                    startIcon={<RemoveTwoToneIcon fontSize="small"/>}
-                                    onClick={() => handlePageChange(-1)}
-                                >
-                                    Previous Page
-                                </Button>
-                                <span style={{padding: 8, fontWeight: 600}}>
-                    {currentPageNumber} of {numPages}
-                </span>
-                                <Button
-                                    sx={{ml: 1}}
-                                    size="small"
-                                    variant="contained"
-                                    startIcon={<AddTwoToneIcon fontSize="small"/>}
-                                    onClick={() => handlePageChange(1)}
-                                >
-                                    Next Page
-                                </Button>
-                            </Box>
-                        )}
-                    </Box>
-                    <Box>
-                        <Box sx={{display: 'flex', alignItems: 'center'}}>
-                            Hide Markers
-                            <Switch
-                                checked={hideMarkers}
-                                onChange={() => setHideMarkers(!hideMarkers)}
-                            />
-                            Show Only Selected Marker
-                            <Switch
-                                checked={onlySelectedMarker}
-                                onChange={() => {
-                                    setOnlySelectedMarker(!onlySelectedMarker);
-                                    if (onlySelectedMarker) {
-                                        setSelectedNote(null);
-                                    }
+                        <div style={{margin: '0.5rem', width: '15%'}}>
+                            <TextField
+                                placeholder="Search Text"
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                variant="outlined"
+                                size="small"
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchIcon/>
+                                        </InputAdornment>
+                                    ),
+                                    style: {padding: '0.1rem'}
                                 }}
                             />
-                            {onlySelectedMarker && (
-                                <span>selectedMarker: {selectedNote ? selectedNote?.noteTitle : "No click a note in the drawer"}</span>
+                        </div>
+                    </Box>
+
+
+                    <ToastContainer/>
+                    <Box sx={{display: 'flex', justifyContent: 'flex-start', alignItems: 'center', m: 1}}>
+                        <Box>
+                            {numPages > 1 && (
+                                <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                    <Button
+                                        variant="contained"
+                                        size="small"
+                                        startIcon={<RemoveTwoToneIcon fontSize="small"/>}
+                                        onClick={() => handlePageChange(-1)}
+                                    >
+                                        Previous Page
+                                    </Button>
+                                    <span style={{padding: 8, fontWeight: 600}}>
+                    {currentPageNumber} of {numPages}
+                </span>
+                                    <Button
+                                        sx={{ml: 1}}
+                                        size="small"
+                                        variant="contained"
+                                        startIcon={<AddTwoToneIcon fontSize="small"/>}
+                                        onClick={() => handlePageChange(1)}
+                                    >
+                                        Next Page
+                                    </Button>
+                                </Box>
                             )}
                         </Box>
+                        <Box>
+                            <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                Hide Markers
+                                <Switch
+                                    checked={hideMarkers}
+                                    onChange={() => setHideMarkers(!hideMarkers)}
+                                />
+                                Show Only Selected Marker
+                                <Switch
+                                    checked={onlySelectedMarker}
+                                    onChange={() => {
+                                        setOnlySelectedMarker(!onlySelectedMarker);
+                                        if (onlySelectedMarker) {
+                                            setSelectedNote(null);
+                                        }
+                                    }}
+                                />
+                                {onlySelectedMarker && (
+                                    <span>selectedMarker: {selectedNote ? selectedNote?.noteTitle : "No click a note in the drawer"}</span>
+                                )}
+                            </Box>
+                        </Box>
                     </Box>
-                </Box>
 
 
-                <AddNoteDialog
-                    open={isDialogOpen}
-                    onClose={() => {
-                        setIsDialogOpen(false)
-                    }}
-                    onSave={handleSaveNote}
-                    currentPageNumber={currentPageNumber}
-                    documentTitle={documentTitle}
-                    location={{
-                        xPDF: markerLocation.xPDF,
-                        yPDF: markerLocation.yPDF,
-                        xCanvas: markerLocation.xCanvas,
-                        yCanvas: markerLocation.yCanvas
-                    }}
-                    documentId={documentId}
-                    selectedText={selectedText == undefined ? "" : selectedText}
+                    <AddNoteDialog
+                        open={isDialogOpen}
+                        onClose={() => {
+                            setIsDialogOpen(false)
+                        }}
+                        onSave={handleSaveNote}
+                        currentPageNumber={currentPageNumber}
+                        documentTitle={documentTitle}
+                        location={{
+                            xPDF: markerLocation.xPDF,
+                            yPDF: markerLocation.yPDF,
+                            xCanvas: markerLocation.xCanvas,
+                            yCanvas: markerLocation.yCanvas
+                        }}
+                        documentId={documentId}
+                        selectedText={selectedText == undefined ? "" : selectedText}
 
-                />
+                    />
 
+                </div>
             </div>
-        </div>
+        </>
+
 
     );
 }
