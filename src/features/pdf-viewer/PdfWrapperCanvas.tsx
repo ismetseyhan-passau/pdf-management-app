@@ -182,7 +182,7 @@ const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
 
         const iconHtml = `
         <div style="width: 32px; height: 32px;">
-            <img src="/src/assets/marker.png" alt="Note Pin Icon" width="32" height="32">
+            <img src="/marker.png" alt="Note Pin Icon" width="32" height="32">
         </div>
     `;
 

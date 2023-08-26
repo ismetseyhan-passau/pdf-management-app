@@ -1,11 +1,10 @@
 import {Navigate} from 'react-router-dom';
 import {RouteObject} from 'react-router';
 import SidebarLayout from './layout/SidebarLayout'
-import Home from "./pages/Home.tsx";
 import PrivateRoute from "./layout/PrivateRoute.tsx";
 import SignInSide from "./pages/SignIn.tsx";
 import SignUp from "./pages/SignUp.tsx";
-import Error from "./pages/Error.tsx";
+import Error from "./pages/Status404.tsx";
 import DocumentManagement from "./features/document_management/DocumentManagement.tsx";
 import PdfProvider from "./features/pdf-viewer/PdfProvider.tsx";
 
@@ -16,10 +15,10 @@ import PdfProvider from "./features/pdf-viewer/PdfProvider.tsx";
 const routes: RouteObject[] = [
     {
         path: '',
-        element: <PrivateRoute/>,
+        element: <PrivateRoute/>, //Check Authentication control
         children: [{
             path: '',
-            element: <SidebarLayout/>,
+            element: <SidebarLayout/>, // General Layout
             children: [
                 {
                     path: '',
@@ -30,15 +29,11 @@ const routes: RouteObject[] = [
                     element: <DocumentManagement/>
                 },
                 {
-                    path: 'home',
-                    element: <Home/>
-                },
-                {
                     path: 'pdf-viewer',
                     element: <PdfProvider/>
                 },
                 {
-                    path: 'pdf-viewer/:documentId',
+                    path: 'pdf-viewer/:documentId', //dynamic route
                     element: <PdfProvider/>
                 }
             ]

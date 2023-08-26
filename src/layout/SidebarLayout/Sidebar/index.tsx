@@ -62,7 +62,7 @@ function Sidebar() {
                             }}
                         >
                             <img
-                                src="/src/assets/bmw-group-logo.png"
+                                src="/src/assets/logo/bmw-group-logo.png"
                                 alt="Logo"
                                 width="100%"
                             />
@@ -113,7 +113,7 @@ function Sidebar() {
                                 }}
                             >
                                 <img
-                                    src="/src/assets/bmw-group-logo.png"
+                                    src="/src/assets/logo/bmw-group-logo.png"
                                     alt="Logo"
                                     width="100%"
                                 />
