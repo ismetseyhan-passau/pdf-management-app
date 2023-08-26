@@ -1,8 +1,8 @@
 import {Card} from '@mui/material';
 import RecentDocumentsTable from './RecentDocumentsTable.tsx';
-import IDocument from '../../types/document.type';
+import IDocument from '../../types/IDocument.tsx';
 import {useEffect, useState} from "react";
-import {db} from "../../auth/firebase-env/firebase.tsx";
+import {db} from "../../auth/firebase_env/firebase.tsx";
 import {useAuth} from "../../contexts/AuthContext.tsx";
 import {collection, onSnapshot} from "firebase/firestore";
 

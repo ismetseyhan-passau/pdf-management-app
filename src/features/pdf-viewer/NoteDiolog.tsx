@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography} from '@mui/material';
 import {useAuth} from "../../contexts/AuthContext.tsx";
-import NoteService from "../../services/note.service.tsx";
+import NoteService from "../../services/NoteService.tsx";
 import {toast} from "react-toastify";
 
 interface NoteDialogProps {
@@ -44,7 +44,7 @@ const NoteDialog: React.FC<NoteDialogProps> = ({open, mode, onClose, noteDetails
         try {
             const result = await NoteService.getInstance().updateNote(currentUser?.uid!, noteDetails.documentId, noteDetails.noteId, editedNote);
 
-            if (result === true) {
+            if (result) {
                 toast.success('Note updated successfully!', {
                     position: toast.POSITION.BOTTOM_RIGHT,
                 });
@@ -55,7 +55,6 @@ const NoteDialog: React.FC<NoteDialogProps> = ({open, mode, onClose, noteDetails
                 });
             }
         } catch (error) {
-            console.error("Error updating note:", error);
             toast.error("An error occurred while updating the note.", {
                 position: toast.POSITION.BOTTOM_RIGHT,
             });

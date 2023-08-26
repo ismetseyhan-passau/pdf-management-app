@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import Scrollbar from '../../../components/Scrollbar';
+import Scrollbar from '../../../components/scrollbar/ScrollBar.tsx';
 import {SidebarContext} from '../../../contexts/SiderBarContext.tsx';
 
 import {
@@ -61,11 +61,13 @@ function Sidebar() {
                                 width: 75
                             }}
                         >
+                            <a href="/">
                             <img
                                 src="/src/assets/logo/bmw-group-logo.png"
                                 alt="Logo"
                                 width="100%"
                             />
+                            </a>
                         </Box>
                     </Box>
                     <Divider
@@ -112,11 +114,13 @@ function Sidebar() {
                                     width: 52
                                 }}
                             >
+                                <a href="/">
                                 <img
                                     src="/src/assets/logo/bmw-group-logo.png"
                                     alt="Logo"
                                     width="100%"
                                 />
+                                </a>
                             </Box>
                         </Box>
                         <Divider

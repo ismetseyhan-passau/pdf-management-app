@@ -1,15 +1,16 @@
 import {useEffect, useState} from "react";
-import {db} from "../../auth/firebase-env/firebase.tsx";
+import {db} from "../../auth/firebase_env/firebase.tsx";
 import {useAuth} from "../../contexts/AuthContext.tsx";
 import {collection, onSnapshot} from "firebase/firestore";
-import IDocumentNoteType from "../../types/document.note.type.tsx";
+import IDocumentNoteType from "../../types/IDocumentNote.tsx";
 import PdfViewer from "./PdfViewer.tsx";
 import {useParams} from "react-router-dom";
-import DocumentService from "../../services/document.service.tsx";
-import documentService from "../../services/document.service.tsx";
-import IDocument from "../../types/document.type.tsx";
+import DocumentService from "../../services/DocumentService.tsx";
+import documentService from "../../services/DocumentService.tsx";
+import IDocument from "../../types/IDocument.tsx";
 import {Typography} from "@mui/material";
 import RecentDocumentsTable from "../document_management/RecentDocumentsTable.tsx";
+import {Helmet} from "react-helmet-async";
 
 
 function PdfProvider() {
@@ -63,27 +64,33 @@ function PdfProvider() {
 
 
     return (
-        <div>
-            {documentId !== undefined && documentPath !== undefined ? (
-                <PdfViewer
-                    currentUser={currentUser}
-                    documentId={documentId}
-                    documentPath={documentPath}
-                    documentTitle={documentTitle}
-                    notesOfDocument={notesOfDocument}
-                />
-            ) : (
-                <div style={{margin: 14}}>
-                    {userDocuments.length > 0 ? (
-                        <Typography variant="h3">Please click the "show document" button to view the PDF</Typography>
-                    ) : (
-                        <Typography variant="h3">Please upload the PDF file via the documents section.</Typography>
-                    )}
-                    <RecentDocumentsTable documents={userDocuments} tableTitle="Your PDF Documents"/>
-                </div>
-            )}
+        <>
+            <Helmet>
+                <title> PDF Viewer </title>
+            </Helmet>
+            <div>
+                {documentId !== undefined && documentPath !== undefined ? (
+                    <PdfViewer
+                        currentUser={currentUser}
+                        documentId={documentId}
+                        documentPath={documentPath}
+                        documentTitle={documentTitle}
+                        notesOfDocument={notesOfDocument}
+                    />
+                ) : (
+                    <div style={{margin: 14}}>
+                        {userDocuments.length > 0 ? (
+                            <Typography variant="h3">Please click the "show document" button to view the
+                                PDF</Typography>
+                        ) : (
+                            <Typography variant="h3">Please upload the PDF file via the documents section.</Typography>
+                        )}
+                        <RecentDocumentsTable documents={userDocuments} tableTitle="Your PDF Documents"/>
+                    </div>
+                )}
 
-        </div>
+            </div>
+        </>
     );
 }
 

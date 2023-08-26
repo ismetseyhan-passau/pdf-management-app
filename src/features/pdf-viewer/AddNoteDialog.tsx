@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 
 
-import IDocumentNoteType from "../../types/document.note.type.tsx";
+import IDocumentNoteType from "../../types/IDocumentNote.tsx";
 
 
 interface LocationInformation {

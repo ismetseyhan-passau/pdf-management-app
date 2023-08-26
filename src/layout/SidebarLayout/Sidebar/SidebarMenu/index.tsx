@@ -197,7 +197,7 @@ function SidebarMenu() {
                                     disableRipple
                                     component={RouterLink}
                                     onClick={closeSidebar}
-                                    to="/pdf-viewer/"
+                                    to="/pdf-viewer"
                                     startIcon={<CheckBoxTwoToneIcon/>}
                                 >
                                     Pdf Viewer

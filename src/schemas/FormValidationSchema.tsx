@@ -45,6 +45,15 @@ export const signInSchema = yup.object().shape({
 });
 
 
+export const forgetPassword = yup.object().shape({
+    email: yup
+        .string()
+        .email('Please provide a valid email address')
+        .required('Email address is required'),
+
+});
+
+
 export const advancedSchema = yup.object().shape({
 
     isAccepted: yup.boolean().oneOf([true], 'Please agree to the terms and conditions'),

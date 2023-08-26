@@ -12,9 +12,10 @@ import {
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {useAuth} from '../../contexts/AuthContext.tsx';
-import StorageService from "../../services/storage.service.tsx";
-import DocumentService from "../../services/document.service.tsx";
-import IDocument from '../../types/document.type.tsx';
+import StorageService from "../../services/StorageService.tsx";
+import DocumentService from "../../services/DocumentService.tsx";
+import IDocument from '../../types/IDocument.tsx';
+import {toast, ToastContainer} from "react-toastify";
 
 function PageHeader() {
     const {currentUser} = useAuth();
@@ -108,6 +109,9 @@ function PageHeader() {
             }
         } catch (error) {
             console.error("Error uploading file:", error);
+            toast.error(`Error: ${error}`, {
+                position: toast.POSITION.BOTTOM_RIGHT,
+            });
         }
     };
 
@@ -152,7 +156,7 @@ function PageHeader() {
                         <input
                             type="file"
                             accept=".pdf,.jpg,.jpeg,.png"
-                            style={{display: 'none'}} // Hide the default file input
+                            style={{display: 'none'}}
                             id="fileInput"
                             onChange={handleFileChange}
                         />
@@ -161,7 +165,7 @@ function PageHeader() {
                                 variant="contained"
                                 color="primary"
                                 component="span"
-                                startIcon={<CloudUploadIcon/>} // Use the CloudUpload icon
+                                startIcon={<CloudUploadIcon/>}
                             >
                                 Choose a File
                             </Button>
@@ -182,9 +186,10 @@ function PageHeader() {
                             Add
                         </Button>
                     </DialogActions>
+
                 </Dialog>
             </Grid>
-
+            <ToastContainer/>
         </Grid>
 
     );

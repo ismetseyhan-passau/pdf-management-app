@@ -8,6 +8,7 @@ import {
 
 
 import {styled} from '@mui/material/styles';
+import {Helmet} from "react-helmet-async";
 
 
 const MainContent = styled(Box)(
@@ -27,6 +28,9 @@ const MainContent = styled(Box)(
 function Status404() {
     return (
         <>
+            <Helmet>
+                <title> PDF Viewer - Status 404 </title>
+            </Helmet>
             <MainContent>
                 <Container maxWidth="md" sx={{mt: 4}}>
                     <Box textAlign="center">

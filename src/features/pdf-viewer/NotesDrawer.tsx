@@ -7,7 +7,7 @@ import {
     Divider,
     Box, Switch,
 } from '@mui/material';
-import IDocumentNoteType from '../../types/document.note.type';
+import IDocumentNoteType from '../../types/IDocumentNote.tsx';
 import NoteListItem from "./NoteListItem.tsx";
 
 interface DrawerProps {

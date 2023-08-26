@@ -1,7 +1,3 @@
-
-import 'firebase/firestore'
-
-
 interface IDocumentNoteType {
     id: string;
     noteTitle: string;

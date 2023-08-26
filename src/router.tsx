@@ -7,6 +7,7 @@ import SignUp from "./pages/SignUp.tsx";
 import Error from "./pages/Status404.tsx";
 import DocumentManagement from "./features/document_management/DocumentManagement.tsx";
 import PdfProvider from "./features/pdf-viewer/PdfProvider.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 
 
 // Pages
@@ -33,7 +34,7 @@ const routes: RouteObject[] = [
                     element: <PdfProvider/>
                 },
                 {
-                    path: 'pdf-viewer/:documentId', //dynamic route
+                    path: 'pdf-viewer/:documentId',
                     element: <PdfProvider/>
                 }
             ]
@@ -45,8 +46,18 @@ const routes: RouteObject[] = [
 
     },
     {
+        path: 'login?demo=active',  // Search Params
+        element: <SignInSide/>,
+
+    },
+    {
         path: 'register',
         element: <SignUp/>,
+
+    },
+    {
+        path: 'reset-password',
+        element: <ResetPassword/>,
 
     },
     {
