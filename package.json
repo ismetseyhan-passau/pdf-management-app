@@ -1,5 +1,6 @@
 {
   "name": "pdf-management-app",
+  "homepage": "http://pdfapp.ismetseyhan.com",
   "private": true,
   "version": "0.0.0",
   "type": "module",
