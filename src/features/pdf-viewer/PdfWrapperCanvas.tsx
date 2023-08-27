@@ -121,7 +121,7 @@ const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
         }
     };
 
-    function removeNotePin() {
+    function removeNoteCursor() {
         const notePins = document.querySelectorAll("#notePinIcon");
         notePins.forEach((notePin) => {
             notePin.remove();
@@ -135,7 +135,7 @@ const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
         const ctx = canvasOverlay.getContext("2d");
         if (ctx) {
             ctx.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
-            removeNotePin();
+            removeNoteCursor();
         }
     };
 
