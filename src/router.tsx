@@ -5,9 +5,12 @@ import PrivateRoute from "./layout/PrivateRoute.tsx";
 import SignInSide from "./pages/SignIn.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Error from "./pages/Status404.tsx";
-import DocumentManagement from "./features/document_management/DocumentManagement.tsx";
-import PdfProvider from "./features/pdf-viewer/PdfProvider.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
+
+import {lazy} from 'react';
+
+const DocumentManagement = lazy(() => import('./features/document_management/DocumentManagement.tsx'));
+const PdfProvider = lazy(() => import('./features/pdf-viewer/PdfProvider.tsx'));
 
 
 // Pages

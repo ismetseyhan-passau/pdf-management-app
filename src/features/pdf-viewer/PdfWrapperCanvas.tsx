@@ -32,6 +32,7 @@ interface PdfWrapperCanvasProps {
     hideMarkers: boolean,
     onlySelectedMarker: boolean,
     selectedNote: IDocumentNoteType | null
+    setSelectedText: (text: string) => void
 }
 
 const A4SIZE = {
@@ -54,7 +55,9 @@ const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
                                                                noteCursorMapList,
                                                                hideMarkers,
                                                                onlySelectedMarker,
-                                                               selectedNote
+                                                               selectedNote,
+                                                               setSelectedText
+
 
                                                            }) => {
     useEffect(() => {
@@ -114,10 +117,11 @@ const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
         if (ctx) {
             ctx.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
             removeAddButton();
+            setSelectedText("");
         }
     };
 
-    function removeNotePin() {
+    function removeNoteCursor() {
         const notePins = document.querySelectorAll("#notePinIcon");
         notePins.forEach((notePin) => {
             notePin.remove();
@@ -131,7 +135,7 @@ const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
         const ctx = canvasOverlay.getContext("2d");
         if (ctx) {
             ctx.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
-            removeNotePin();
+            removeNoteCursor();
         }
     };
 
@@ -231,10 +235,9 @@ const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
             const yPDF = Math.round(
                 (A4SIZE.DPI_72.HEIGHT * mousePosition.y) / canvas.height
             );
-
-            if (canvas.width >= canvasWidth || canvas.height >= canvasHeight) {
+            console.log(canvas.width, canvas.height, canvasWidth, canvasHeight);
+            if (canvas.width + 10 >= canvasWidth || canvas.height + 10 >= canvasHeight) {
                 clearOverlayCanvas();
-
                 drawOnOverlayCanvas(xPDF, yPDF, x, y);
 
 
@@ -252,8 +255,6 @@ const PdfWrapperCanvas: React.FC<PdfWrapperCanvasProps> = ({
             } else if (enableDraw) {
                 clearOverlayCanvas();
                 removeAddButton();
-
-                //  drawOnOverlayCanvas(x, y, "red", textPlaceholder);
             }
         }
     };
